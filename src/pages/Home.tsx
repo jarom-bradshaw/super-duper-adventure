@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Hero from '../components/Hero';
 import Section from '../components/Section';
 import { Link } from 'react-router-dom';
+import resumePdf from '../assets/Jarom Bradshaw Resume.pdf';
 
 const Home = () => {
   useEffect(() => {
@@ -54,39 +55,26 @@ const Home = () => {
               </li>
             </ul>
 
-            <h3 className="text-2xl font-bold text-cyan-400 mb-4">Explore My Work</h3>
-            <p className="text-gray-300 mb-4">
-              Navigate through the sections above to see my projects in:
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Link
-                to="/full-stack"
+            <h3 className="text-2xl font-bold text-cyan-400 mb-4">Resume</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a
+                href={resumePdf}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="glass-card glass-card-hover rounded-lg p-6 text-center"
               >
-                <h4 className="text-xl font-bold text-cyan-400 mb-2">Full Stack</h4>
+                <h4 className="text-xl font-bold text-cyan-400 mb-2">PDF Resume</h4>
                 <p className="text-gray-300 text-sm">
-                  Web and mobile applications including FinBuddy, Personal Notes Manager,
-                  and more
+                  One-page condensed resume for job applications
                 </p>
-              </Link>
-              <Link
-                to="/ml"
-                className="glass-card glass-card-hover rounded-lg p-6 text-center"
-              >
-                <h4 className="text-xl font-bold text-cyan-400 mb-2">
-                  Machine Learning
-                </h4>
-                <p className="text-gray-300 text-sm">
-                  AI chatbots and data analysis projects
-                </p>
-              </Link>
+              </a>
               <Link
                 to="/resume"
                 className="glass-card glass-card-hover rounded-lg p-6 text-center"
               >
-                <h4 className="text-xl font-bold text-cyan-400 mb-2">My Resume</h4>
+                <h4 className="text-xl font-bold text-cyan-400 mb-2">View Full Resume</h4>
                 <p className="text-gray-300 text-sm">
-                  Complete professional experience and accomplishments
+                  Extended resume with additional projects and details
                 </p>
               </Link>
             </div>
