@@ -1,5 +1,6 @@
 import StarscapeGame from '../components/StarscapeGame';
 import MeteorGame from '../components/MeteorGame';
+import TelescopeGame from '../components/TelescopeGame';
 
 const MiniGame = () => {
   return (
@@ -10,7 +11,7 @@ const MiniGame = () => {
           {document.documentElement.getAttribute('data-theme') === 'meteors' ? (
             <MeteorGame />
           ) : (
-            <StarscapeGame />
+            <TelescopeGame />
           )}
         </div>
       </div>
