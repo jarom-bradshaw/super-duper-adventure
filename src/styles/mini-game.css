@@ -57,4 +57,65 @@
 
 .tuft-blade { stroke: var(--grass); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linecap: round; }
 
+/* Wind lines */
+.wind-curl, .wind-line {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.25;
+  stroke-width: 2;
+}
+
+.wind-curl {
+  animation: curl 3.5s linear infinite;
+}
+
+@keyframes curl {
+  0% { opacity: 0; }
+  10% { opacity: 0.25; }
+  70% { opacity: 0.25; }
+  100% { opacity: 0; }
+}
+
+/* Wind gusts styled like wind.css */
+.wind-gust-path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.28;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  animation: wind-line 3s linear infinite;
+}
+.wind-gust-circle {
+  stroke: #ffffff;
+  fill: transparent;
+  stroke-width: 2px;
+  stroke-opacity: 0.08;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  animation: wind-circle 3.1s ease-out infinite both;
+}
+.wind-gust-move {
+  animation: gust-move 9s linear infinite;
+}
+
+@keyframes wind-line {
+  from {
+    stroke-dasharray: 100 1200;
+    stroke-dashoffset: 1300;
+  }
+  to {
+    stroke-dasharray: 100 1200;
+    stroke-dashoffset: 10;
+  }
+}
+@keyframes wind-circle {
+  0%, 50% { opacity: 0.12; transform: scale(0); }
+  70%, 100% { opacity: 0; transform: scale(1); }
+}
+@keyframes gust-move {
+  0% { transform: translateX(1400px); }
+  100% { transform: translateX(-200px); }
+}
+
 
