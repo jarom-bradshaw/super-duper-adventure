@@ -28,8 +28,8 @@ export default {
           '80%': { transform: 'translate(2px, -2px)' },
         },
         'pulse-border': {
-          '0%, 100%': { boxShadow: '0 0 8px rgba(34, 211, 238, 0.3)' },
-          '50%': { boxShadow: '0 0 12px rgba(34, 211, 238, 0.6)' },
+          '0%, 100%': { boxShadow: '0 0 5px rgba(34, 211, 238, 0.3)' },
+          '50%': { boxShadow: '0 0 8px rgba(34, 211, 238, 0.6)' },
         },
       },
       backdropBlur: {
