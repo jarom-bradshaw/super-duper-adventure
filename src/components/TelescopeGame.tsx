@@ -198,7 +198,7 @@ export default function TelescopeGame() {
   });
 
   // Fence garden and seeds
-  type Plant = { id: number; x: number; y: number; bloomUntil: number | null };
+  type Plant = { id: number; x: number; y: number; plantedAt: number; fadeUntil: number; bloomAt: number | null };
   const [plants, setPlants] = useState<Plant[]>([]);
   const plantNextId = useRef(1);
 
@@ -455,6 +455,9 @@ export default function TelescopeGame() {
 
     // Pour water to bloom flowers when pitcher held, key Q
     // We check a flag by peeking keyboard state via a simple latch: use down state captured earlier
+
+    // Cleanup faded plants
+    setPlants((prev) => prev.filter((p) => performance.now() < p.fadeUntil));
   });
 
   // Handle pouring with Q keydown (moved here after useRaf)
@@ -468,6 +471,16 @@ export default function TelescopeGame() {
           if (d < 80) return { ...t, flowerUntil: now + 30000 };
           return t;
         }));
+        // also water planted plants nearby - flower appears 15s later, dies 30s after blooming
+        setPlants((prev) => prev.map((p) => {
+          const d = Math.hypot(p.x - px, p.y - py);
+          if (d < 80 && p.bloomAt === null) {
+            const bloomAt = now + 15000; // flower appears 15 seconds after watering
+            const fadeUntil = bloomAt + 30000; // flower dies 30 seconds after blooming
+            return { ...p, bloomAt, fadeUntil };
+          }
+          return p;
+        }));
         if (challengeUntil && now < challengeUntil) {
           // count distinct watered tufts in window
           setChallengeWatered((w) => Math.min(w + 1, 3));
@@ -476,9 +489,13 @@ export default function TelescopeGame() {
       if ((e.key === 'q' || e.key === 'Q') && seedsHeld && playerRef.current.grounded && !overlayOpen && !arcadeOpen) {
         // plant seed anywhere on ground; limit to remaining seeds
         if (seedsRemaining > 0) {
+          const now = performance.now();
           const px = playerRef.current.pos.x;
           const y = 560; // ground baseline
-          setPlants((prev) => [...prev, { id: plantNextId.current++, x: px, y, bloomUntil: null }]);
+          setPlants((prev) => [
+            ...prev,
+            { id: plantNextId.current++, x: px, y, plantedAt: now, fadeUntil: now + 30000, bloomAt: null },
+          ]);
           setSeedsRemaining((n) => n - 1);
         }
       }
@@ -491,7 +508,7 @@ export default function TelescopeGame() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [pitcherHeld, overlayOpen, arcadeOpen]);
+  }, [pitcherHeld, seedsHeld, hourglassHeld, seedsRemaining, challengeUntil, overlayOpen, arcadeOpen]);
 
   // telescope hotspot (right side near x ~ 1040)
   const telescopeX = 1040;
@@ -680,13 +697,7 @@ export default function TelescopeGame() {
                     <circle cx={16} cy={-2} r={18} fill="var(--grass)" opacity={0.3} />
                   </g>
                 ))}
-                {/* fence garden bottom floor */}
-                <g className="fence" opacity={0.85}>
-                  <path d="M 520 560 L 680 560" stroke="var(--figure)" strokeWidth={3} />
-                  {Array.from({ length: 9 }).map((_, idx) => (
-                    <path key={idx} d={`M ${520 + idx*20} 560 L ${520 + idx*20} 540`} stroke="var(--figure)" strokeWidth={3} />
-                  ))}
-                </g>
+                {/* fence removed */}
               </g>
             );
           })()}
@@ -956,19 +967,30 @@ export default function TelescopeGame() {
 
         {/* garden plants */}
         <g className="plants">
-          {plants.map((p) => (
-            <g key={p.id} transform={`translate(${p.x},${p.y})`}>
-              {p.bloomUntil && performance.now() < p.bloomUntil ? (
-                <circle cx={0} cy={-10} r={5} fill="var(--meteor-color)" />
-              ) : (
-                <>
-                  <path d="M 0 0 L 8 -16" className="tuft-blade" />
-                  <path d="M 0 0 L 5 -12" className="tuft-blade" />
-                  <path d="M 0 0 L 12 -12" className="tuft-blade" />
-                </>
-              )}
-            </g>
-          ))}
+          {plants.map((p) => {
+            const now = performance.now();
+            const isBlooming = p.bloomAt !== null && now >= p.bloomAt && now < p.fadeUntil;
+            const remaining = Math.max(0, p.fadeUntil - now);
+            const opacity = Math.max(0, Math.min(1, remaining / 30000));
+            return (
+              <g key={p.id} transform={`translate(${p.x},${p.y})`} style={{ opacity }}>
+                {isBlooming ? (
+                  <>
+                    <circle cx={0} cy={-8} r={5} fill="var(--meteor-color)" opacity={0.8} />
+                    <circle cx={-4} cy={-12} r={3} fill="#fff" opacity={0.9} />
+                    <circle cx={4} cy={-12} r={3} fill="#fff" opacity={0.9} />
+                    <line x1={0} y1={-8} x2={0} y2={0} stroke="var(--grass)" strokeWidth={2} />
+                  </>
+                ) : (
+                  <g className="plant-grass">
+                    <path d="M 0 0 L 8 -16" className="tuft-blade" />
+                    <path d="M 0 0 L 5 -12" className="tuft-blade" />
+                    <path d="M 0 0 L 12 -12" className="tuft-blade" />
+                  </g>
+                )}
+              </g>
+            );
+          })}
         </g>
       </svg>
 

@@ -57,6 +57,24 @@
 
 .tuft-blade { stroke: var(--grass); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linecap: round; }
 
+/* Plant animations */
+@keyframes grassGrow {
+  0% { transform: scaleY(0); opacity: 0; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+.plant-grass {
+  transform-origin: bottom center;
+  animation: grassGrow 0.8s ease-out both;
+}
+
+@keyframes plantFadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.plant-fade {
+  animation: plantFadeOut 1s linear forwards;
+}
+
 /* Wind lines */
 .wind-curl, .wind-line {
   fill: none;
