@@ -1,4 +1,3 @@
-import StarscapeGame from '../components/StarscapeGame';
 import MeteorGame from '../components/MeteorGame';
 import TelescopeGame from '../components/TelescopeGame';
 

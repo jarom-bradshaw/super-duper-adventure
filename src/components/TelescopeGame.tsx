@@ -56,7 +56,7 @@ export default function TelescopeGame() {
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const dragging = useRef(false);
   const dragLast = useRef<{ x: number; y: number } | null>(null);
-  const [zenScore, setZenScore] = useState(0);
+  const [, setZenScore] = useState(0);
   const [jarHeld, setJarHeld] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [p2Enabled, setP2Enabled] = useState(false);
@@ -535,9 +535,6 @@ export default function TelescopeGame() {
               <circle cx={-12} cy={-26} r={3} fill="var(--meteor-color)" />
               <circle cx={0} cy={-26} r={3} fill="var(--text)" />
               <rect x={-10} y={-20} width={20} height={4} rx={2} fill="var(--figure)" />
-              {/* cabinet legs */}
-              <rect x={-26} y={0} width={10} height={16} fill="rgba(255,255,255,0.08)" />
-              <rect x={16} y={0} width={10} height={16} fill="rgba(255,255,255,0.08)" />
             </g>
             {nearCabinet && !arcadeOpen && (
               <text x={0} y={-100} textAnchor="middle" fontSize="12" fill="var(--text)">Press Enter to play</text>
