@@ -1,0 +1,60 @@
+.hill { fill: var(--hill-1); }
+.hill-2 { fill: var(--hill-2); }
+.hill-3 { fill: var(--hill-3); }
+
+.hill-edge { stroke: var(--hill-edge, rgba(255,255,255,0.15)); stroke-width: 2; vector-effect: non-scaling-stroke; }
+
+/* Dedicated stroke overlay so edges are always visible */
+.hill-stroke { fill: none; stroke: var(--hill-edge, rgba(255,255,255,0.25)); stroke-width: 3; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+
+.figure line,
+.figure circle,
+.figure path {
+  stroke: var(--figure);
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.figure {
+  animation: idle 6s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  transform-origin: center;
+}
+
+/* In the interactive game, disable CSS transforms so SVG transform attributes control position */
+.game-svg .figure {
+  animation: none;
+}
+
+@keyframes idle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .figure { animation: none; }
+}
+
+/* Theme tokens for the mini-game */
+:root[data-theme="stars"] {
+  --hill-1: #0b1b2b;
+  --hill-2: #0a1420;
+  --hill-3: #07101a;
+  --figure: #9ecbe0;
+  --hill-edge: rgba(158, 203, 224, 0.35);
+  --grass: #74b8d3;
+}
+
+:root[data-theme="meteors"] {
+  --hill-1: #e8ddd6; /* softened for visibility in light */
+  --hill-2: #e2d6ce;
+  --hill-3: #daccc3;
+  --figure: #e87a4a;
+  --hill-edge: rgba(232, 122, 74, 0.35);
+  --grass: #cc7a52;
+}
+
+.tuft-blade { stroke: var(--grass); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+
+
