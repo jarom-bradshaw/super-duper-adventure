@@ -48,15 +48,7 @@ export default function DotsAndBoxesMini(){
       all.push({k:keyV(r,c),type:'v',r,c}); all.push({k:keyV(r,c+1),type:'v',r,c:c+1});
     }
     const avail = all.filter(a=>!e[a.k]);
-    const safe = avail.filter(a=>{
-      // count how many edges box would have after
-      if (a.type==='h'){
-        const top = a.k.startsWith('h-0-'); const r=parseInt(a.k.split('-')[1]); const c=parseInt(a.k.split('-')[2]);
-        const box1 = e[keyV(c,r)]&& e[keyV(c,r+1)] && (a.k?1:0); // rough
-      }
-      return true;
-    });
-    const pick = (safe[0]??avail[0]); if (!pick) return;
+    const pick = avail[0]; if (!pick) return;
     setEdges(prev=> ({...prev, [pick.k]: 2})); setTurn(1);
   }
 

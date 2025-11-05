@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type Cell = 0|1|2; // 0 unknown, 1 miss, 2 hit
 type Ship = { r:number; c:number; len:number; dir:0|1; hits:number };

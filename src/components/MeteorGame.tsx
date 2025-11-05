@@ -357,7 +357,7 @@ export default function MeteorGame() {
 
         {/* Wind gusts */}
         <g className="wind-gusts" stroke="#ff6b6b">
-          {winds.slice(0, 6).map((w, idx) => (
+          {winds.slice(0, 6).map((w) => (
             <g key={w.id} className="wind-gust-move" transform={`translate(0,${w.y - 200}) scale(3)`}>
               <path
                 className="wind-gust-path"
@@ -402,15 +402,7 @@ export default function MeteorGame() {
           <circle cx={treeX} cy={treeY - 14} r={28} fill="#9b2c2c" opacity={0.6} />
           <circle cx={treeX - 18} cy={treeY - 4} r={18} fill="#b83232" opacity={0.5} />
           <circle cx={treeX + 18} cy={treeY - 4} r={18} fill="#b83232" opacity={0.5} />
-          {/* shine when ready */}
-          {idlePhase.current % 1.2 < 0.6 && (players.some(p=>true)) && (
-            (idlePhase.current < 1 ? null : null)
-          )}
-          {apple == null && (() => {
-            // shine cue if cooldown ready
-            const ready = (playersRef.current.length>=0) && (performance.now(), true);
-            return null;
-          })()}
+          {/* shine cue reserved for future */}
           {/* apple */}
           {apple && <circle cx={apple.x} cy={apple.y} r={5} fill="#ff5757" stroke="#fff" strokeWidth={1} />}
         </g>

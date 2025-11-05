@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type GameKey = 'pong' | 'flappy' | 'breakout' | 'invaders' | 'pacman' | 'frogger';
 
@@ -18,30 +18,10 @@ const GAMES: { key: GameKey; name: string; desc: string }[] = [
   { key: 'frogger', name: 'Frogger', desc: 'Cross road and river' },
 ];
 
-function useLocalHighscore(key: GameKey) {
-  const storageKey = `arcade_highscore_${key}`;
-  const [score, setScore] = useState<number>(() => {
-    const v = localStorage.getItem(storageKey);
-    return v ? parseInt(v) : 0;
-  });
-  const save = (s: number) => {
-    if (s > score) {
-      setScore(s);
-      localStorage.setItem(storageKey, String(s));
-    }
-  };
-  return { score, save };
-}
-
 export default function ArcadeOverlay({ open, onClose, onStartGame, renderActiveGame }: Props) {
   const [screen, setScreen] = useState<'grid' | 'mode' | 'playing' | 'gameover'>('grid');
   const [selected, setSelected] = useState<GameKey>('pong');
-  const [lastScore, setLastScore] = useState(0);
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const hs = useMemo(() => Object.fromEntries(GAMES.map(g => [g.key, ((): number => {
-    const v = localStorage.getItem(`arcade_highscore_${g.key}`);
-    return v ? parseInt(v) : 0;
-  })()])), [] ) as Record<GameKey, number>;
 
   // Reset to grid only on open transition
   const prevOpen = useRef<boolean>(false);

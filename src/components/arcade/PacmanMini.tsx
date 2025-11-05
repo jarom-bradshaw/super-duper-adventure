@@ -37,7 +37,7 @@ export default function PacmanMini() {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
     let acc = 0; const stepTime = 0.12; let ghostPhase = 0;
-    const loop = (t: number) => {
+    const loop = () => {
       const dt = 0.016; acc += dt; ghostPhase += dt;
       const s = stateRef.current; const g = gridRef.current;
       if (!s.alive) return;

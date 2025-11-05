@@ -14,7 +14,7 @@ function inside(r:number,c:number){return r>=0&&r<N&&c>=0&&c<N;}
 function movesFor(b:P[][], r:number,c:number): {r:number;c:number; jump?:{r:number;c:number}}[] {
   const p=b[r][c]; if(!p) return [];
   const res: any[]=[]; const dir = (p===1||p===3)? -1 : 1; const king = (p===3||p===4);
-  const owners = p===1||p===3? [1,3] : [2,4]; const opp = p===1||p===3? [2,4] : [1,3];
+  const opp = p===1||p===3? [2,4] : [1,3];
   const dirs = king? [-1,1]: [dir];
   for (const d of dirs){
     for (const dc of [-1,1]){
