@@ -33,13 +33,15 @@ const ML = () => {
               {[
                 'Python',
                 'Ollama',
-                'Pandas & NumPy',
+                'Pandas',
                 'Seaborn',
-                'Scikit-learn',
+                'Machine Learning',
+                'RNN',
+                'NLP',
                 'XGBoost',
                 'Neural Networks',
-                'RNN',
                 'Random Forest',
+                'Kaggle',
               ].map((tech) => (
                 <div
                   key={tech}

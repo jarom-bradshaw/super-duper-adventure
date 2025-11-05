@@ -28,13 +28,7 @@ const Mobile = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   '.NET Maui',
-                  'Flutter',
-                  'React Native',
                   'MongoDB',
-                  'Bluetooth',
-                  'Cross-Platform',
-                  'iOS',
-                  'Android',
                 ].map((tech) => (
                   <div
                     key={tech}

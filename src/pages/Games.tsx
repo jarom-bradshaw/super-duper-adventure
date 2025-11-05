@@ -28,11 +28,11 @@ const Games = () => {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  'Godot Engine',
+                  'Godot',
                   'Unity',
                   'C#',
                   '3D Game Development',
-                  'Cross-Platform Deployment',
+                  'Game Development',
                 ].map((tech) => (
                   <div
                     key={tech}

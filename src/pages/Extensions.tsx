@@ -32,9 +32,6 @@ const Extensions = () => {
                 {[
                   'Chrome Extension',
                   'JavaScript',
-                  'Manifest V3',
-                  'DOM Manipulation',
-                  'Web APIs',
                 ].map((tech) => (
                   <div
                     key={tech}
