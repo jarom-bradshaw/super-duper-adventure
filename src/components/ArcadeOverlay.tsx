@@ -78,7 +78,7 @@ export default function ArcadeOverlay({ open, onClose, onStartGame, renderActive
                 >
                   <div className="font-semibold">{g.name}</div>
                   <div className="text-xs text-[color:var(--muted-foreground)]">{g.desc}</div>
-                  <div className="mt-1 text-xs">Top score: {hs[g.key] || 0}</div>
+                  {/* top score removed */}
                 </button>
               ))}
             </div>
@@ -107,15 +107,7 @@ export default function ArcadeOverlay({ open, onClose, onStartGame, renderActive
           </div>
         )}
 
-        {screen === 'gameover' && (
-          <div>
-            <div className="text-lg">Score: {lastScore}</div>
-            <div className="mt-2 flex items-center justify-center gap-2">
-              <button type="button" className="px-3 py-1 rounded border border-[color:var(--glass-border)]" onClick={() => setScreen('mode')}>Restart</button>
-              <button type="button" className="px-3 py-1 rounded border border-[color:var(--glass-border)]" onClick={() => setScreen('grid')}>Back to Grid</button>
-            </div>
-          </div>
-        )}
+        {screen === 'gameover' && null}
       </div>
     </div>
   );
