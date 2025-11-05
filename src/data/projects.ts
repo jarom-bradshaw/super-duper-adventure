@@ -176,24 +176,6 @@ export const fullStackProjects: Project[] = [
     technologies: ['Java', 'AWS', 'S3'],
   },
   {
-    title: 'Apply First - Chrome Extension',
-    description:
-      'A Chrome extension that helps job seekers find the newest LinkedIn job postings.',
-    bullets: [
-      'Solves the problem of navigating an overcrowded and slow-to-navigate UI',
-      'Enables users to be among the first 5 applicants to new job postings',
-      '80% user satisfaction rate with excellent reviews',
-      'Available on Chrome Web Store',
-    ],
-    links: [
-      {
-        label: 'Chrome Web Store',
-        url: 'https://chromewebstore.google.com/detail/apply-first-linkedin-jobs/peonjhgigocioaokchebkomnjjdhnffe',
-      },
-    ],
-    technologies: ['Chrome Extension', 'JavaScript'],
-  },
-  {
     title: 'Flora-ID',
     date: 'Plant Enthusiast Content App | Freelance Project',
     description:
@@ -221,6 +203,27 @@ export const mobileProjects: Project[] = [
     ],
     links: [{ label: 'MLH Hackathon', url: 'https://mlh.io' }],
     technologies: ['.NET Maui', 'MongoDB'],
+  },
+];
+
+export const extensionProjects: Project[] = [
+  {
+    title: 'Apply First - Chrome Extension',
+    description:
+      'A Chrome extension that helps job seekers find the newest LinkedIn job postings.',
+    bullets: [
+      'Solves the problem of navigating an overcrowded and slow-to-navigate UI',
+      'Enables users to be among the first 5 applicants to new job postings',
+      '80% user satisfaction rate with excellent reviews',
+      'Available on Chrome Web Store',
+    ],
+    links: [
+      {
+        label: 'Chrome Web Store',
+        url: 'https://chromewebstore.google.com/detail/apply-first-linkedin-jobs/peonjhgigocioaokchebkomnjjdhnffe',
+      },
+    ],
+    technologies: ['Chrome Extension', 'JavaScript'],
   },
 ];
 

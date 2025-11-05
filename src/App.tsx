@@ -9,6 +9,7 @@ import FullStack from './pages/FullStack';
 import Mobile from './pages/Mobile';
 import Games from './pages/Games';
 import Referrals from './pages/Referrals';
+import Extensions from './pages/Extensions';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route path="/full-stack" element={<FullStack />} />
               <Route path="/mobile" element={<Mobile />} />
               <Route path="/games" element={<Games />} />
+              <Route path="/extensions" element={<Extensions />} />
               <Route path="/referrals" element={<Referrals />} />
             </Routes>
           </main>
