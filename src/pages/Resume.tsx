@@ -11,8 +11,8 @@ const Resume = () => {
             <p className="text-gray-400 text-sm mb-4">
               Last Updated: January 27, 2025
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-cyan-400">
-              <a href="mailto:jarombrads@gmail.com" className="hover:text-cyan-300">
+            <div className="flex flex-wrap justify-center gap-4 text-[color:var(--link)]">
+              <a href="mailto:jarombrads@gmail.com" className="hover:text-[color:var(--accent)]">
                 Email
               </a>
               <span className="text-gray-500">|</span>
@@ -20,7 +20,7 @@ const Resume = () => {
                 href="https://www.linkedin.com/in/jarom-bradshaw"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-cyan-300"
+                className="hover:text-[color:var(--accent)]"
               >
                 LinkedIn
               </a>
@@ -31,7 +31,7 @@ const Resume = () => {
                 href="https://github.com/jarom-bradshaw"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-cyan-300"
+                className="hover:text-[color:var(--accent)]"
               >
                 GitHub
               </a>
@@ -40,7 +40,7 @@ const Resume = () => {
 
           <Section>
             <div className="glass-card rounded-lg p-8 mb-8">
-              <h2 className="text-3xl font-bold text-cyan-400 mb-4">SUMMARY</h2>
+              <h2 className="text-3xl font-bold text-[color:var(--link)] mb-4">SUMMARY</h2>
               <p className="text-gray-300">
                 Student at BYU-Idaho who is smart, fun to work with, and gets things done. Has
                 saved over 1,000 hours of staffing work through automations developed for BYU-I
@@ -51,9 +51,9 @@ const Resume = () => {
 
           <Section>
             <div className="glass-card rounded-lg p-8 mb-8">
-              <h2 className="text-3xl font-bold text-cyan-400 mb-6">EDUCATION</h2>
+              <h2 className="text-3xl font-bold text-[color:var(--link)] mb-6">EDUCATION</h2>
               <div className="mb-4">
-                <p className="text-xl font-bold text-cyan-300 mb-1">
+                <p className="text-xl font-bold text-[color:var(--link)] mb-1">
                   Bachelors of Science in Computer Science
                 </p>
                 <p className="text-gray-400 mb-2">
@@ -70,10 +70,10 @@ const Resume = () => {
 
           <Section>
             <div className="glass-card rounded-lg p-8 mb-8">
-              <h2 className="text-3xl font-bold text-cyan-400 mb-6">WORK EXPERIENCE</h2>
+              <h2 className="text-3xl font-bold text-[color:var(--link)] mb-6">WORK EXPERIENCE</h2>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                   Software Developer
                 </h3>
                 <p className="text-gray-400 mb-2">
@@ -82,7 +82,7 @@ const Resume = () => {
                 <p className="text-gray-500 text-sm mb-3">
                   September 2025 – Present (Remote)
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> HAFB needed to predict supply chain disruptions for
                   critical parts before they impacted operations.
                 </p>
@@ -103,7 +103,7 @@ const Resume = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                   Software Engineer
                 </h3>
                 <p className="text-gray-400 mb-2">
@@ -112,7 +112,7 @@ const Resume = () => {
                 <p className="text-gray-500 text-sm mb-3">
                   March 2025 – Present (Rexburg ID)
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> BYU-I Support Center provides work for 18+ offices
                   across campus including financial aid, vice presidents, international services,
                   and customer service for multiple departments. They also report on all data phone
@@ -134,7 +134,7 @@ const Resume = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                   Freelance Software Developer
                 </h3>
                 <p className="text-gray-400 mb-2">
@@ -143,7 +143,7 @@ const Resume = () => {
                 <p className="text-gray-500 text-sm mb-3">
                   May 2025 – July 2025 (Remote)
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> Various clients needed custom software solutions
                   requiring rapid iteration based on user feedback.
                 </p>
@@ -154,7 +154,7 @@ const Resume = () => {
                       href="https://flora-id.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-cyan-400 hover:text-cyan-300"
+                      className="text-[color:var(--link)] hover:text-[color:var(--accent)]"
                     >
                       flora-id.com
                     </a>
@@ -171,7 +171,7 @@ const Resume = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                   Developer Inter
                 </h3>
                 <p className="text-gray-400 mb-2">
@@ -180,7 +180,7 @@ const Resume = () => {
                 <p className="text-gray-500 text-sm mb-3">
                   December 2024 – May 2025 (Remote)
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> Created a dashboard in open source software with an AI
                   chatbot where phone dispatchers could visually assess if truck drivers should take
                   breaks to improve compliance.
@@ -201,7 +201,7 @@ const Resume = () => {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                   Technology Secretary, LDS Mission Office
                 </h3>
                 <p className="text-gray-400 mb-2">
@@ -212,7 +212,7 @@ const Resume = () => {
                 <p className="text-gray-500 text-sm mb-3">
                   February 2023 - August 2023, Rio de Janeiro, Brazil
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> Mission office needed to manage IT infrastructure for
                   120+ missionaries across 50+ missionary companionships while controlling costs.
                 </p>
@@ -236,17 +236,17 @@ const Resume = () => {
 
           <Section>
             <div className="glass-card rounded-lg p-8 mb-8">
-              <h2 className="text-3xl font-bold text-cyan-400 mb-6">RELATED EXPERIENCE</h2>
+              <h2 className="text-3xl font-bold text-[color:var(--link)] mb-6">RELATED EXPERIENCE</h2>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">Project Manager</h3>
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">Project Manager</h3>
                 <p className="text-gray-400 mb-2">
                   <strong>Data Science Society</strong>
                 </p>
                 <p className="text-gray-500 text-sm mb-3">
                   September 2024 - Present, Rexburg, Idaho
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> Needed to teach foundational programming concepts to
                   participants with varying skill levels.
                 </p>
@@ -263,18 +263,18 @@ const Resume = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">CodeChart</h3>
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">CodeChart</h3>
                 <p className="text-gray-400 mb-2">
                   <a
                     href="https://codech.art"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-cyan-400 hover:text-cyan-300"
+                    className="text-[color:var(--link)] hover:text-[color:var(--accent)]"
                   >
                     codech.art
                   </a>
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> Complex code concepts were difficult for learners to
                   understand visually.
                 </p>
@@ -291,7 +291,7 @@ const Resume = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                   Apply First - Chrome Extension for LinkedIn Job Filtering
                 </h3>
                 <p className="text-gray-400 mb-2">
@@ -299,12 +299,12 @@ const Resume = () => {
                     href="https://chrome.google.com/webstore"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-cyan-400 hover:text-cyan-300"
+                    className="text-[color:var(--link)] hover:text-[color:var(--accent)]"
                   >
                     Chrome Web Store
                   </a>
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> LinkedIn job search UI was slow and overcrowded,
                   making it hard to find new postings quickly.
                 </p>
@@ -321,18 +321,18 @@ const Resume = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">FinBuddy</h3>
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">FinBuddy</h3>
                 <p className="text-gray-400 mb-2">
                   <a
                     href="https://github.com/jarom-bradshaw"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-cyan-400 hover:text-cyan-300"
+                    className="text-[color:var(--link)] hover:text-[color:var(--accent)]"
                   >
                     GitHub
                   </a>
                 </p>
-                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-cyan-500 pl-4">
+                <p className="text-gray-300 text-sm mb-3 italic border-l-4 border-[color:var(--link)] pl-4">
                   <strong>Situation:</strong> Lack of accessible financial education tools for
                   individuals wanting to improve their financial literacy.
                 </p>
@@ -349,7 +349,7 @@ const Resume = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-1">
+                <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                   Personal Notes Manager
                 </h3>
                 <p className="text-gray-400 mb-2">
@@ -357,7 +357,7 @@ const Resume = () => {
                     href="https://github.com/jarom-bradshaw"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-cyan-400 hover:text-cyan-300"
+                    className="text-[color:var(--link)] hover:text-[color:var(--accent)]"
                   >
                     GitHub
                   </a>
@@ -382,23 +382,23 @@ const Resume = () => {
 
           <Section>
             <div className="glass-card rounded-lg p-8 mb-8">
-              <h2 className="text-3xl font-bold text-cyan-400 mb-6">SKILLS</h2>
+              <h2 className="text-3xl font-bold text-[color:var(--link)] mb-6">SKILLS</h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-xl font-bold text-cyan-300 mb-2">Backend</h3>
+                  <h3 className="text-xl font-bold text-[color:var(--link)] mb-2">Backend</h3>
                   <p className="text-gray-300">
                     Java, Spring Boot, C#, Python, Node.js, Express, REST APIs, Data
                     Structures
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-cyan-300 mb-2">Frontend</h3>
+                  <h3 className="text-xl font-bold text-[color:var(--link)] mb-2">Frontend</h3>
                   <p className="text-gray-300">
                     JavaScript, TypeScript, EJS, React, Vue, Flutter, .NET Maui
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-cyan-300 mb-2">
+                  <h3 className="text-xl font-bold text-[color:var(--link)] mb-2">
                     Databases & Data Engineering
                   </h3>
                   <p className="text-gray-300">
@@ -407,7 +407,7 @@ const Resume = () => {
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-cyan-300 mb-2">
+                  <h3 className="text-xl font-bold text-[color:var(--link)] mb-2">
                     Data Analysis & Visualization
                   </h3>
                   <p className="text-gray-300">
@@ -416,11 +416,11 @@ const Resume = () => {
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-cyan-300 mb-2">Tools & DevOps</h3>
+                  <h3 className="text-xl font-bold text-[color:var(--link)] mb-2">Tools & DevOps</h3>
                   <p className="text-gray-300">Git, Docker, Jira</p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-cyan-300 mb-2">
+                  <h3 className="text-xl font-bold text-[color:var(--link)] mb-2">
                     Programming Paradigms
                   </h3>
                   <p className="text-gray-300">
@@ -429,7 +429,7 @@ const Resume = () => {
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-cyan-300 mb-2">Languages</h3>
+                  <h3 className="text-xl font-bold text-[color:var(--link)] mb-2">Languages</h3>
                   <p className="text-gray-300">
                     Fluent in Portuguese; native-level proficiency in English
                   </p>
@@ -440,7 +440,7 @@ const Resume = () => {
 
           <Section>
             <div className="glass-card rounded-lg p-8 mb-8">
-              <h2 className="text-3xl font-bold text-cyan-400 mb-6">
+              <h2 className="text-3xl font-bold text-[color:var(--link)] mb-6">
                 ACCOMPLISHMENTS & CERTIFICATES
               </h2>
               <ul className="list-disc list-inside space-y-2 text-gray-300">
@@ -461,11 +461,11 @@ const Resume = () => {
                   Society.
                 </li>
               </ul>
-              <div className="mt-6 pt-6 border-t border-cyan-500/30">
-                <h3 className="text-xl font-bold text-cyan-300 mb-4">Certificates</h3>
+              <div className="mt-6 pt-6 border-t border-[color:var(--link)]/30">
+                <h3 className="text-xl font-bold text-[color:var(--link)] mb-4">Certificates</h3>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-lg font-bold text-cyan-300">
+                    <p className="text-lg font-bold text-[color:var(--link)]">
                       Computer Programming Certificate
                     </p>
                     <p className="text-gray-400 text-sm">
@@ -473,7 +473,7 @@ const Resume = () => {
                     </p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-cyan-300">
+                    <p className="text-lg font-bold text-[color:var(--link)]">
                       Machine Learning Certificate
                     </p>
                     <p className="text-gray-400 text-sm">

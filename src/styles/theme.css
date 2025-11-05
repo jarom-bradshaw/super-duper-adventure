@@ -1,0 +1,57 @@
+:root {
+  /* Base UI */
+  --bg: #f7f5f2;
+  --text: #0b0b0f;
+  --muted: #eceae7;
+  --muted-foreground: #41434a;
+  --link: #ea580c; /* orange-600 */
+  --accent: #ef4444; /* red-500 */
+
+  /* Meteors (light theme) */
+  --meteor-color: #e25822; /* orange-red */
+  --meteor-glow: rgba(226, 88, 34, 0.6);
+
+  /* Surfaces */
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --card-border: rgba(6, 182, 212, 0.25);
+  --glass-bg: rgba(255, 255, 255, 0.5);
+  --glass-border: rgba(234, 88, 12, 0.3); /* warm orange */
+  --glass-shadow: 0 0 5px rgba(234, 88, 12, 0.3);
+
+  /* Gradient Stops (warm in light) */
+  --gradient-1: #f59e0b;
+  --gradient-2: #f97316;
+  --gradient-3: #fb923c;
+  --gradient-4: #ef4444;
+  --gradient-5: #f43f5e;
+}
+
+:root[data-theme="stars"] {
+  /* Base UI */
+  --bg: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%);
+  --text: #e7f6ff;
+  --muted: #0f1729;
+  --muted-foreground: #c9d5e1;
+  --link: #22d3ee; /* cyan-400 */
+  --accent: #60a5fa; /* blue-400 */
+
+  /* Stars (dark theme) */
+  --meteor-color: #22d3ee; /* cyan */
+  --meteor-glow: rgba(34, 211, 238, 0.6);
+
+  /* Surfaces */
+  --card-bg: rgba(0, 0, 0, 0.35);
+  --card-border: rgba(34, 211, 238, 0.3);
+  --glass-bg: rgba(0, 0, 0, 0.2);
+  --glass-border: rgba(34, 211, 238, 0.3);
+  --glass-shadow: 0 0 5px rgba(34, 211, 238, 0.3);
+
+  /* Gradient Stops (cool in dark) */
+  --gradient-1: #22d3ee;
+  --gradient-2: #06b6d4;
+  --gradient-3: #3b82f6;
+  --gradient-4: #6366f1;
+  --gradient-5: #8b5cf6;
+}
+
+

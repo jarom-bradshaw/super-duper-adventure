@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const location = useLocation();
@@ -11,6 +12,7 @@ const Header = () => {
     { path: '/mobile', label: 'Mobile' },
     { path: '/games', label: 'Games' },
     { path: '/extensions', label: 'Extensions' },
+    { path: '/mini-game', label: 'Mini Game' },
     { path: '/referrals', label: 'Referrals' },
   ];
 
@@ -21,22 +23,25 @@ const Header = () => {
           <Link to="/" className="text-xl md:text-2xl font-bold gradient-text">
             Jarom Bradshaw
           </Link>
-          <ul className="flex space-x-2 md:space-x-6">
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`text-sm md:text-base transition-colors hover:text-cyan-400 ${
-                    location.pathname === item.path
-                      ? 'text-cyan-400'
-                      : 'text-gray-300'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <div className="flex items-center gap-4">
+            <ul className="flex space-x-2 md:space-x-6">
+              {navItems.map((item) => (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                  className={`text-sm md:text-base transition-colors hover:text-[color:var(--link)] ${
+                      location.pathname === item.path
+                      ? 'text-[color:var(--link)]'
+                      : 'text-[color:var(--muted-foreground)]'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
     </header>

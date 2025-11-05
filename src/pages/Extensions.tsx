@@ -11,7 +11,7 @@ const Extensions = () => {
             <h1 className="text-5xl font-bold gradient-text mb-4">
               Browser Extensions
             </h1>
-            <p className="text-gray-300 text-lg">
+            <p className="text-[color:var(--muted-foreground)] text-lg">
               Browser extensions that enhance productivity and improve user
               experiences.
             </p>
@@ -25,7 +25,7 @@ const Extensions = () => {
 
           <Section>
             <div className="glass-card rounded-lg p-8 mt-12">
-              <h2 className="text-3xl font-bold text-cyan-400 mb-6">
+              <h2 className="text-3xl font-bold text-[color:var(--link)] mb-6">
                 Technologies & Tools
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -35,7 +35,7 @@ const Extensions = () => {
                 ].map((tech) => (
                   <div
                     key={tech}
-                    className="px-4 py-2 bg-cyan-500/20 text-cyan-300 rounded-lg text-center"
+                    className="px-4 py-2 bg-[color:var(--link)]/20 text-[color:var(--link)] rounded-lg text-center"
                   >
                     {tech}
                   </div>
