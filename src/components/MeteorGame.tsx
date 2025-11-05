@@ -116,7 +116,7 @@ export default function MeteorGame() {
 
     // Update players
     setPlayers((prev) => {
-      const next = prev.map((p, idx) => ({ ...p, pos: { ...p.pos }, vel: { ...p.vel }, grounded: false }));
+      const next = prev.map((p) => ({ ...p, pos: { ...p.pos }, vel: { ...p.vel }, grounded: false }));
       const inputs = [leftKeys.current, rightKeys.current];
       for (let i = 0; i < next.length; i++) {
         const pl = next[i];
