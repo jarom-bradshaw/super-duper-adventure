@@ -1,9 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import GameResult from '../GameResult';
 
 export default function InvadersMini() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animRef = useRef<number | null>(null);
   const keys = useRef({ left: false, right: false, shoot: false });
+  const [finalScore, setFinalScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
   const stateRef = useRef({ w: 480, h: 320, x: 220, bullets: [] as { x: number; y: number }[], aliens: [] as { x: number; y: number; alive: boolean }[], dir: 1 as 1 | -1, stepT: 0, score: 0, level: 1, boss: null as null | { x: number; y: number; hp: number; vx: number }, enemyBullets: [] as { x: number; y: number }[], alive: true });
   useEffect(() => {
     const aliens = [] as { x: number; y: number; alive: boolean }[];
@@ -21,6 +24,7 @@ export default function InvadersMini() {
           // restart
           s.x = 220; s.bullets = []; s.enemyBullets = []; s.level = 1; s.score = 0; s.dir = 1; s.stepT = 0; s.boss = null; s.alive = true;
           s.aliens = []; for (let r = 0; r < 3; r++) for (let c = 0; c < 8; c++) s.aliens.push({ x: 60 + c * 42, y: 50 + r * 26, alive: true });
+          setShowResult(false);
         }
       }
     };
@@ -94,6 +98,8 @@ export default function InvadersMini() {
       for (const eb of s.enemyBullets) {
         if (Math.abs(eb.x - s.x) < 12 && eb.y > s.h - 24) {
           s.alive = false;
+          setFinalScore(s.score);
+          setShowResult(true);
           break;
         }
       }
@@ -136,7 +142,15 @@ export default function InvadersMini() {
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, []);
   return (
-    <div className="mx-auto">
+    <div className="mx-auto relative">
+      {showResult && (
+        <GameResult
+          result="win"
+          playerScore={finalScore}
+          opponentScore={0}
+          onClose={() => setShowResult(false)}
+        />
+      )}
       <div className="mb-2 text-sm text-[color:var(--muted-foreground)]">Invaders — ◀/▶ and Space</div>
       <canvas ref={canvasRef} width={480} height={320} className="rounded border border-[color:var(--glass-border)]" />
     </div>

@@ -1,9 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import GameResult from '../GameResult';
 
 export default function BreakoutMini() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animRef = useRef<number | null>(null);
   const keys = useRef({ left: false, right: false });
+  const [finalScore, setFinalScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
   const stateRef = useRef({ w: 480, h: 320, padX: 200, padW: 80, padH: 10, ballX: 240, ballY: 200, vx: 160, vy: -180, bricks: [] as boolean[], cols: 8, rows: 5, score: 0 });
   useEffect(() => {
     const bricks = new Array(stateRef.current.cols * stateRef.current.rows).fill(true);
@@ -39,8 +42,16 @@ export default function BreakoutMini() {
       if (s.ballY < 0) { s.ballY = 0; s.vy *= -1; }
       // paddle
       if (s.ballY > s.h - 24 && s.ballX > s.padX && s.ballX < s.padX + s.padW) { s.ballY = s.h - 24; s.vy = -Math.abs(s.vy); }
-      if (s.ballY > s.h + 10) { // reset
+      if (s.ballY > s.h + 10) { // game over
+        setFinalScore(s.score);
+        setShowResult(true);
         s.ballX = 240; s.ballY = 200; s.vx = 160; s.vy = -180; s.score = 0; s.bricks.fill(true);
+      }
+      // win condition - all bricks cleared
+      if (s.bricks.every(b => !b)) {
+        setFinalScore(s.score);
+        setShowResult(true);
+        s.bricks.fill(true);
       }
       // bricks
       const bw = s.w / s.cols; const bh = 16; const top = 40;
@@ -76,7 +87,15 @@ export default function BreakoutMini() {
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, []);
   return (
-    <div className="mx-auto">
+    <div className="mx-auto relative">
+      {showResult && (
+        <GameResult
+          result="win"
+          playerScore={finalScore}
+          opponentScore={0}
+          onClose={() => setShowResult(false)}
+        />
+      )}
       <div className="mb-2 text-sm text-[color:var(--muted-foreground)]">Breakout — A/D or ◀/▶</div>
       <canvas ref={canvasRef} width={480} height={320} className="rounded border border-[color:var(--glass-border)]" />
     </div>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import GameResult from '../GameResult';
 
 type P = 0 | 1 | 2 | 3 | 4; // 0 empty, 1 human, 2 ai, 3 human king, 4 ai king
 const N=8;
@@ -29,6 +30,7 @@ export default function CheckersMini(){
   const [board,setBoard]=useState<P[][]>(init());
   const [sel,setSel]=useState<{r:number;c:number}|null>(null);
   const [turn,setTurn]=useState<1|2>(1);
+  const [showResult, setShowResult] = useState(false);
   const win = useMemo(()=> (board.flat().some(p=>p===1||p===3)? (board.flat().some(p=>p===2||p===4)? 0:1):2),[board]);
 
   function clickCell(r:number,c:number){
@@ -61,10 +63,27 @@ export default function CheckersMini(){
     setTurn(1);
   }
 
-  function reset(){ setBoard(init()); setSel(null); setTurn(1); }
+  function reset(){ setBoard(init()); setSel(null); setTurn(1); setShowResult(false); }
+
+  const playerPieces = board.flat().filter(p => p === 1 || p === 3).length;
+  const aiPieces = board.flat().filter(p => p === 2 || p === 4).length;
+  const result = win === 1 ? 'win' : win === 2 ? 'loss' : 'draw';
+
+  // Check for win condition and show result
+  if (win && !showResult) {
+    setTimeout(() => setShowResult(true), 100);
+  }
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto relative">
+      {showResult && win && (
+        <GameResult
+          result={result}
+          playerScore={playerPieces}
+          opponentScore={aiPieces}
+          onClose={() => setShowResult(false)}
+        />
+      )}
       <div className="mb-2 text-sm text-[color:var(--muted-foreground)]">Checkers — simple AI</div>
       <div className="inline-block">
         {board.map((row,r)=> (

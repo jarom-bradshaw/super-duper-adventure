@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import GameResult from '../GameResult';
 
 type Cell = 0 | 1 | 2; // 0 empty, 1 human, 2 ai
 const ROWS = 6, COLS = 7;
@@ -33,6 +34,7 @@ function aiMove(g: Cell[][]): number {
 export default function ConnectFourMini(){
   const [grid, setGrid] = useState<Cell[][]>(Array.from({length:ROWS},()=>Array(COLS).fill(0)));
   const [turn, setTurn] = useState<Cell>(1);
+  const [showResult, setShowResult] = useState(false);
   const win = useMemo(()=>winner(grid),[grid]);
 
   function play(c:number){
@@ -40,14 +42,31 @@ export default function ConnectFourMini(){
     const g = clone(grid);
     if (!drop(g,c,1)) return;
     setGrid(g); setTurn(2);
-    const w = winner(g); if (w) return;
+    const w = winner(g); 
+    if (w) { setShowResult(true); return; }
     const aiC = aiMove(g);
-    drop(g, aiC, 2); setGrid(clone(g)); setTurn(1);
+    drop(g, aiC, 2); 
+    setGrid(clone(g)); 
+    setTurn(1);
+    const w2 = winner(g);
+    if (w2) setShowResult(true);
   }
-  function reset(){ setGrid(Array.from({length:ROWS},()=>Array(COLS).fill(0))); setTurn(1); }
+  function reset(){ setGrid(Array.from({length:ROWS},()=>Array(COLS).fill(0))); setTurn(1); setShowResult(false); }
+
+  const playerPieces = grid.flat().filter(c => c === 1).length;
+  const aiPieces = grid.flat().filter(c => c === 2).length;
+  const result = win === 3 ? 'draw' : win === 1 ? 'win' : win === 2 ? 'loss' : 'draw';
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto relative">
+      {showResult && win && (
+        <GameResult
+          result={result}
+          playerScore={playerPieces}
+          opponentScore={aiPieces}
+          onClose={() => setShowResult(false)}
+        />
+      )}
       <div className="mb-2 text-sm text-[color:var(--muted-foreground)]">Connect Four — You vs AI</div>
       <div className="grid grid-cols-7 gap-1 w-[280px] mx-auto">
         {Array.from({length:COLS},(_,c)=> (
