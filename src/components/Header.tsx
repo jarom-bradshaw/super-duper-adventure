@@ -10,6 +10,7 @@ const Header = () => {
     { path: '/full-stack', label: 'Full Stack' },
     { path: '/mobile', label: 'Mobile' },
     { path: '/games', label: 'Games' },
+    { path: '/extensions', label: 'Extensions' },
     { path: '/referrals', label: 'Referrals' },
   ];
 
