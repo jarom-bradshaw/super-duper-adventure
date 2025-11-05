@@ -229,6 +229,23 @@ export const extensionProjects: Project[] = [
 
 export const gameProjects: Project[] = [
   {
+    title: 'Starry Night & Meteor Mini‑Games (Web)',
+    date: 'React | 2025',
+    description:
+      'A theme‑based web mini‑game suite integrated into my site: a peaceful dark‑mode stargazing world and a light‑mode meteor dodge.',
+    bullets: [
+      'Theme switching auto‑loads MeteorGame (light) or TelescopeGame (dark)',
+      'Interactive objects: telescope overlay, lantern chain/switch, seeds/flowers, pitcher watering, snowglobe',
+      'Board Games overlay: Tic‑Tac‑Toe, Connect Four, Checkers, Dots & Boxes, Battleship (simple AIs)',
+      'Curved‑hill platforming physics: jump, gravity, friction, drop‑through',
+      'Meteor mode: falling meteors, blast scoring, red tree with timed apple heals and visible wind',
+    ],
+    links: [
+      { label: 'Play', url: '/minigame' },
+    ],
+    technologies: ['React', 'TypeScript', 'SVG', 'Game Development'],
+  },
+  {
     title: '3D Minesweeper',
     date: 'May 2025',
     description:

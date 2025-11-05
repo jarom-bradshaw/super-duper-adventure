@@ -53,8 +53,8 @@ export default function MeteorGame() {
   const ridge2Ref = useRef<SVGPathElement>(null);
   const ridge3Ref = useRef<SVGPathElement>(null);
 
-  const leftKeys = useRef({ left: false, right: false, up: false, down: false });
-  const rightKeys = useRef({ left: false, right: false, up: false, down: false });
+  const leftKeys = useRef({ left: false, right: false, up: false, down: false, e: false });
+  const rightKeys = useRef({ left: false, right: false, up: false, down: false, e: false });
 
   const [players, setPlayers] = useState<Player[]>([
     { pos: { x: 250, y: 515 }, vel: { x: 0, y: 0 }, grounded: false, facing: 1, dropUntil: 0, lives: 3, invulnUntil: 0, score: 0, streak: 0 },
@@ -77,7 +77,8 @@ export default function MeteorGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent, down: boolean) => {
-      if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key)) e.preventDefault();
+      if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'e', 'E'].includes(e.key)) e.preventDefault();
+      if (e.key === 'e' || e.key === 'E') { leftKeys.current.e = down; rightKeys.current.e = down; }
       if (e.key === 'a') leftKeys.current.left = down;
       if (e.key === 'd') leftKeys.current.right = down;
       if (e.key === 'w') leftKeys.current.up = down;
@@ -93,6 +94,32 @@ export default function MeteorGame() {
     window.addEventListener('keyup', ku, { passive: false });
     return () => { window.removeEventListener('keydown', kd as any); window.removeEventListener('keyup', ku as any); };
   }, []);
+
+  // Wind gusts visuals (simple spawn and drift)
+  type Wind = { id: number; x: number; y: number; speed: number; life: number; maxLife: number; scale: number };
+  const [winds, setWinds] = useState<Wind[]>([]);
+  const windNextId = useRef(1);
+  const windSpawnTimer = useRef(0);
+
+  useRaf((dt) => {
+    windSpawnTimer.current -= dt;
+    const target = 6;
+    if (winds.length < target && windSpawnTimer.current <= 0) {
+      windSpawnTimer.current = 0.2;
+      const id = windNextId.current++;
+      const y = 80 + Math.random() * 300;
+      const speed = 60 + Math.random() * 80;
+      const scale = 0.7 + Math.random() * 0.8;
+      setWinds((prev) => [...prev, { id, x: VIEW_W + 40, y, speed, life: 0, maxLife: (VIEW_W + 100) / speed, scale }]);
+    }
+    setWinds((prev) => prev.map((w) => ({ ...w, x: w.x - w.speed * dt, life: w.life + dt })).filter((w) => w.x > -120));
+  });
+
+  // Single red-foliage tree with apple drop
+  const treeX = 200; // top-left hill area (more dangerous)
+  const treeY = 470; // higher on the hill
+  const appleCooldownUntil = useRef(0);
+  const [apple, setApple] = useState<{ x: number; y: number; vy: number } | null>(null);
 
   useRaf((dt, tSec) => {
     const r1 = ridge1Ref.current, r2 = ridge2Ref.current, r3 = ridge3Ref.current;
@@ -112,6 +139,15 @@ export default function MeteorGame() {
         ...prev.filter((m) => m.active).slice(-40),
         { id, pos: { x, y: -30 }, vel: { x: drift, y: 100 }, radius, active: true },
       ]);
+    }
+
+    // Shake tree to drop apple (E near tree, 60s cooldown)
+    if (leftKeys.current.e || rightKeys.current.e) {
+      const nearAny = playersRef.current.some((pl) => pl.grounded && Math.abs(pl.pos.x - treeX) < 28);
+      if (nearAny && tSec >= appleCooldownUntil.current && !apple) {
+        appleCooldownUntil.current = tSec + 60;
+        setApple({ x: treeX, y: treeY - 12, vy: -40 });
+      }
     }
 
     // Update players
@@ -172,6 +208,33 @@ export default function MeteorGame() {
       }
       return next;
     });
+
+    // Apple physics and pickup
+    if (apple) {
+      setApple((a) => {
+        if (!a) return a;
+        let vy = a.vy + GRAVITY * dt * 0.6;
+        let y = a.y + vy * dt;
+        if (y > 560) { y = 560; vy = 0; }
+        return { x: a.x, y, vy };
+      });
+      // pickup by any living player
+      setPlayers((prevP) => {
+        if (!apple) return prevP;
+        const picked = prevP.some((pl) => pl.lives > 0 && Math.hypot(pl.pos.x - apple.x, pl.pos.y - apple.y) < 16);
+        if (picked) {
+          setApple(null);
+          return prevP.map((pl) => {
+            if (pl.lives <= 0) return pl;
+            if (Math.hypot(pl.pos.x - treeX, pl.pos.y - 560) < 60) {
+              return { ...pl, lives: Math.min(3, pl.lives + 0.5) };
+            }
+            return pl;
+          });
+        }
+        return prevP;
+      });
+    }
 
     // Update meteors and trigger explosions on hill impact
     setMeteors((prev) => {
@@ -292,6 +355,23 @@ export default function MeteorGame() {
           <path ref={ridge1Ref} className="hill-stroke" d="M0,560 C260,520 520,590 780,560 C1040,530 1120,585 1200,580" />
         </g>
 
+        {/* Wind gusts */}
+        <g className="wind-gusts" stroke="#ff6b6b">
+          {winds.slice(0, 6).map((w) => (
+            <g key={w.id} className="wind-gust-move" transform={`translate(0,${w.y - 200}) scale(3)`}>
+              <path
+                className="wind-gust-path"
+                d="M-34.8,166.8c51.6,1.9,70.9,16.4,78.4,30.3c10.9,20.1-3.6,37.5,6.9,75c3.9,14,11.8,42.2,33.7,50.9
+                c25.7,10.2,65.3-8.7,76.4-36.5c13.8-34.4-26.4-57.5-19.3-110.1c3.3-24.1,17.1-58.7,44.7-67.4c34.9-10.9,84.3,21.7,90.8,65.4
+                c5.3,36-20.6,66.1-42.6,79.8c-39.5,24.5-95.7,14.9-108-7.6c-0.5-0.9-7.9-14.7-2.1-22.7c3.7-5,10.9-5.4,13.1-5.5
+                c15.4-0.8,28.1,12.1,33,17.2c46.5,48.5,53.9,63.9,72.2,75.7c24.1,15.6,66.1,24.2,90.8,6.9c36.4-25.5,7.6-88,49.5-130.7
+                c17.6-17.9,40-24.6,56.4-27.5"
+                strokeDasharray="100 1200"
+              />
+            </g>
+          ))}
+        </g>
+
         {/* Meteors */}
         <g className="meteors" fill="none" stroke="var(--meteor-color)">
           {meteors.map((m) => (
@@ -312,6 +392,19 @@ export default function MeteorGame() {
               <circle key={e.id} cx={e.pos.x} cy={e.pos.y} r={r} strokeWidth={2} strokeOpacity={alpha} />
             );
           })}
+        </g>
+
+        {/* Red tree with apple */}
+        <g className="red-tree">
+          {/* trunk */}
+          <rect x={treeX - 6} y={treeY} width={12} height={46} fill="rgba(255,255,255,0.12)" />
+          {/* red canopy */}
+          <circle cx={treeX} cy={treeY - 14} r={28} fill="#9b2c2c" opacity={0.6} />
+          <circle cx={treeX - 18} cy={treeY - 4} r={18} fill="#b83232" opacity={0.5} />
+          <circle cx={treeX + 18} cy={treeY - 4} r={18} fill="#b83232" opacity={0.5} />
+          {/* shine cue reserved for future */}
+          {/* apple */}
+          {apple && <circle cx={apple.x} cy={apple.y} r={5} fill="#ff5757" stroke="#fff" strokeWidth={1} />}
         </g>
 
         {/* Figures (with lives HUD above head) */}

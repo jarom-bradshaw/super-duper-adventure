@@ -22,6 +22,8 @@ const Games = () => {
           </div>
 
           <Section>
+          
+
             <div className="glass-card rounded-lg p-8 mt-12">
               <h2 className="text-3xl font-bold text-[color:var(--link)] mb-6">
                 Technologies & Tools
