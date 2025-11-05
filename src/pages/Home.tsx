@@ -23,10 +23,10 @@ const Home = () => {
       <div className="container mx-auto px-6 py-16">
         <Section>
           <div className="glass-card rounded-lg p-8 mb-8">
-            <h2 className="text-3xl font-bold text-cyan-400 mb-4">
+            <h2 className="text-3xl font-bold text-[color:var(--link)] mb-4">
               Professional Overview
             </h2>
-            <p className="text-gray-300 mb-6">
+            <p className="text-[color:var(--muted-foreground)] mb-6">
               I'm a software developer with experience across full-stack development,
               machine learning, and data engineering. My work spans from designing
               Discrete Event Modeling systems for supply chain optimization at Hill Air
@@ -35,8 +35,8 @@ const Home = () => {
               real-world problems.
             </p>
 
-            <h3 className="text-2xl font-bold text-cyan-400 mb-4">Current Focus</h3>
-            <ul className="list-disc list-inside space-y-2 text-gray-300 mb-6">
+            <h3 className="text-2xl font-bold text-[color:var(--link)] mb-4">Current Focus</h3>
+            <ul className="list-disc list-inside space-y-2 text-[color:var(--muted-foreground)] mb-6">
               <li>
                 <strong>Full-Stack Development:</strong> Building web and mobile
                 applications with modern frameworks
@@ -55,7 +55,7 @@ const Home = () => {
               </li>
             </ul>
 
-            <h3 className="text-2xl font-bold text-cyan-400 mb-4">Resume</h3>
+            <h3 className="text-2xl font-bold text-[color:var(--link)] mb-4">Resume</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <a
                 href={resumePdf}
@@ -63,8 +63,8 @@ const Home = () => {
                 rel="noopener noreferrer"
                 className="glass-card glass-card-hover rounded-lg p-6 text-center"
               >
-                <h4 className="text-xl font-bold text-cyan-400 mb-2">PDF Resume</h4>
-                <p className="text-gray-300 text-sm">
+                <h4 className="text-xl font-bold text-[color:var(--link)] mb-2">PDF Resume</h4>
+                <p className="text-[color:var(--muted-foreground)] text-sm">
                   One-page condensed resume for job applications
                 </p>
               </a>
@@ -72,8 +72,8 @@ const Home = () => {
                 to="/resume"
                 className="glass-card glass-card-hover rounded-lg p-6 text-center"
               >
-                <h4 className="text-xl font-bold text-cyan-400 mb-2">View Full Resume</h4>
-                <p className="text-gray-300 text-sm">
+                <h4 className="text-xl font-bold text-[color:var(--link)] mb-2">View Full Resume</h4>
+                <p className="text-[color:var(--muted-foreground)] text-sm">
                   Extended resume with additional projects and details
                 </p>
               </Link>

@@ -10,6 +10,7 @@ import Mobile from './pages/Mobile';
 import Games from './pages/Games';
 import Referrals from './pages/Referrals';
 import Extensions from './pages/Extensions';
+import MiniGame from './pages/MiniGame';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               <Route path="/mobile" element={<Mobile />} />
               <Route path="/games" element={<Games />} />
               <Route path="/extensions" element={<Extensions />} />
+              <Route path="/mini-game" element={<MiniGame />} />
               <Route path="/referrals" element={<Referrals />} />
             </Routes>
           </main>

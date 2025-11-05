@@ -42,7 +42,7 @@ const Referrals = () => {
                 </p>
                 <p className="text-gray-400 text-sm">
                   To add a referral, edit the referrals array in{' '}
-                  <code className="text-cyan-400">src/pages/Referrals.tsx</code>
+                  <code className="text-[color:var(--link)]">src/pages/Referrals.tsx</code>
                 </p>
               </div>
             </Section>
@@ -51,7 +51,7 @@ const Referrals = () => {
               <Section key={index}>
                 <div className="glass-card rounded-lg p-8 mb-8">
                   <div className="mb-4">
-                    <h3 className="text-2xl font-bold text-cyan-400 mb-1">
+                    <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                       {referral.name}
                     </h3>
                     <p className="text-gray-400 mb-1">
@@ -59,7 +59,7 @@ const Referrals = () => {
                     </p>
                     <p className="text-gray-500 text-sm">{referral.relationship}</p>
                   </div>
-                  <blockquote className="text-gray-300 italic mb-4 border-l-4 border-cyan-500 pl-4">
+                  <blockquote className="text-gray-300 italic mb-4 border-l-4 border-[color:var(--link)] pl-4">
                     "{referral.text}"
                   </blockquote>
                   {referral.contact && (
@@ -67,7 +67,7 @@ const Referrals = () => {
                       Contact:{' '}
                       <a
                         href={`mailto:${referral.contact}`}
-                        className="text-cyan-400 hover:text-cyan-300"
+                        className="text-[color:var(--link)] hover:text-[color:var(--accent)]"
                       >
                         {referral.contact}
                       </a>
