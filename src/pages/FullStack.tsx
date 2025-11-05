@@ -31,21 +31,13 @@ const FullStack = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   'React',
-                  'JavaScript',
-                  'TypeScript',
+                  'Web Development',
                   'Java',
                   'Spring Boot',
-                  'Node.js',
-                  'Express',
-                  'Vue',
-                  'Flutter',
-                  '.NET Maui',
-                  'MongoDB',
-                  'MySQL',
+                  'Ollama',
+                  'JWT',
                   'AWS',
                   'S3',
-                  'JWT',
-                  'GitHub Actions',
                 ].map((tech) => (
                   <div
                     key={tech}
