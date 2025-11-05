@@ -76,6 +76,17 @@
   100% { opacity: 0; }
 }
 
+/* Lantern flicker */
+.lantern {
+  animation: lantern-flicker 2.2s ease-in-out infinite;
+}
+.lantern:nth-child(odd) { animation-duration: 2.8s; }
+@keyframes lantern-flicker {
+  0%, 100% { opacity: 0.8; }
+  40% { opacity: 0.5; }
+  70% { opacity: 1; }
+}
+
 /* Wind gusts styled like wind.css */
 .wind-gust-path {
   fill: none;
