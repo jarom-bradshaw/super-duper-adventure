@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import GameResult from '../GameResult';
 
 const N=4; // 4x4 dots → 3x3 boxes
 type Edge = {[key:string]: 0|1|2};
@@ -10,6 +11,7 @@ export default function DotsAndBoxesMini(){
   const [edges,setEdges]=useState<Edge>({});
   const [turn,setTurn]=useState<1|2>(1);
   const [score,setScore]=useState<{a:number;b:number}>({a:0,b:0});
+  const [showResult, setShowResult] = useState(false);
   const boxes = useMemo(()=>{
     const owned: {[k:string]: 0|1|2}={};
     for(let r=0;r<N-1;r++) for(let c=0;c<N-1;c++){
@@ -18,6 +20,15 @@ export default function DotsAndBoxesMini(){
     }
     return owned;
   },[edges]);
+  
+  const totalBoxes = (N-1) * (N-1);
+  const gameOver = Object.keys(boxes).length === totalBoxes;
+  
+  useEffect(() => {
+    if (gameOver && !showResult) {
+      setTimeout(() => setShowResult(true), 100);
+    }
+  }, [gameOver, showResult]);
 
   function claim(type:'h'|'v', r:number,c:number){
     const k = type==='h'? keyH(r,c): keyV(r,c);
@@ -52,10 +63,20 @@ export default function DotsAndBoxesMini(){
     setEdges(prev=> ({...prev, [pick.k]: 2})); setTurn(1);
   }
 
-  function reset(){ setEdges({}); setTurn(1); setScore({a:0,b:0}); }
+  function reset(){ setEdges({}); setTurn(1); setScore({a:0,b:0}); setShowResult(false); }
+
+  const result = gameOver ? (score.a > score.b ? 'win' : score.b > score.a ? 'loss' : 'draw') : 'draw';
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto relative">
+      {showResult && gameOver && (
+        <GameResult
+          result={result}
+          playerScore={score.a}
+          opponentScore={score.b}
+          onClose={() => setShowResult(false)}
+        />
+      )}
       <div className="mb-2 text-sm text-[color:var(--muted-foreground)]">Dots & Boxes — You vs AI</div>
       <svg viewBox={`0 0 ${N*40} ${N*40}`} className="block mx-auto" width={N*40} height={N*40}>
         {Array.from({length:N},(_,r)=> Array.from({length:N},(_,c)=> (

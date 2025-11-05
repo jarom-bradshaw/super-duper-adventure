@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import GameResult from '../GameResult';
 
 type Cell = 0|1|2; // 0 unknown, 1 miss, 2 hit
 type Ship = { r:number; c:number; len:number; dir:0|1; hits:number };
@@ -23,10 +24,18 @@ function placeShips(): Ship[]{
 export default function BattleshipMini(){
   const [cells,setCells]=useState<Cell[][]>(Array.from({length:N},()=>Array(N).fill(0)));
   const [ships,setShips]=useState<Ship[]>(placeShips());
+  const [showResult, setShowResult] = useState(false);
   const sunk = useMemo(()=> ships.filter(s=>s.hits>=s.len).length, [ships]);
+  const gameOver = sunk === 5;
+  
+  useEffect(() => {
+    if (gameOver && !showResult) {
+      setTimeout(() => setShowResult(true), 100);
+    }
+  }, [gameOver, showResult]);
 
   function fire(r:number,c:number){
-    if (cells[r][c]!==0) return;
+    if (cells[r][c]!==0 || gameOver) return;
     let hit=false; const ns=ships.map(s=> ({...s}));
     for (const s of ns){
       for (let k=0;k<s.len;k++){ const rr=s.r+(s.dir? k:0), cc=s.c+(s.dir? 0:k); if (rr===r&&cc===c){ s.hits++; hit=true; }}
@@ -34,10 +43,22 @@ export default function BattleshipMini(){
     setShips(ns);
     const nc=cells.map(row=>row.slice()); nc[r][c]= hit? 2:1; setCells(nc);
   }
-  function reset(){ setCells(Array.from({length:N},()=>Array(N).fill(0))); setShips(placeShips()); }
+  function reset(){ setCells(Array.from({length:N},()=>Array(N).fill(0))); setShips(placeShips()); setShowResult(false); }
+
+  const totalShots = cells.flat().filter(c => c !== 0).length;
+  const hits = cells.flat().filter(c => c === 2).length;
+  const result = gameOver ? 'win' : 'draw';
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto relative">
+      {showResult && gameOver && (
+        <GameResult
+          result={result}
+          playerScore={hits}
+          opponentScore={totalShots - hits}
+          onClose={() => setShowResult(false)}
+        />
+      )}
       <div className="mb-2 text-sm text-[color:var(--muted-foreground)]">Battleship — Click to fire</div>
       <div className="inline-block">
         {cells.map((row,r)=> (

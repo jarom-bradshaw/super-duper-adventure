@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import GameResult from '../GameResult';
 
 type Cell = 'X' | 'O' | null;
 
@@ -39,22 +40,41 @@ function minimax(b: Cell[], ai: Cell, human: Cell, turn: Cell): { score: number;
 export default function TicTacToeMini() {
   const [board, setBoard] = useState<Cell[]>(Array(9).fill(null));
   const [turn, setTurn] = useState<Cell>('X');
+  const [showResult, setShowResult] = useState(false);
   const ai: Cell = 'O'; const human: Cell = 'X';
   const status = useMemo(() => checkWin(board), [board]);
 
   function play(i: number) {
     if (status || board[i]) return;
     const nb = board.slice(); nb[i] = human; setBoard(nb); setTurn(ai);
-    const s1 = checkWin(nb); if (s1) return;
+    const s1 = checkWin(nb); if (s1) { setShowResult(true); return; }
     // AI move
     const mv = bestMove(nb.slice(), ai, human);
-    if (mv != null && nb[mv] == null) { nb[mv] = ai; setBoard(nb); setTurn(human); }
+    if (mv != null && nb[mv] == null) { 
+      nb[mv] = ai; 
+      setBoard(nb); 
+      setTurn(human);
+      const s2 = checkWin(nb);
+      if (s2) setShowResult(true);
+    }
   }
 
-  function reset() { setBoard(Array(9).fill(null)); setTurn(human); }
+  function reset() { setBoard(Array(9).fill(null)); setTurn(human); setShowResult(false); }
+
+  const result = status === 'draw' ? 'draw' : status === human ? 'win' : 'loss';
+  const playerScore = status === human ? 1 : 0;
+  const aiScore = status === ai ? 1 : 0;
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto relative">
+      {showResult && status && (
+        <GameResult
+          result={result}
+          playerScore={playerScore}
+          opponentScore={aiScore}
+          onClose={() => setShowResult(false)}
+        />
+      )}
       <div className="mb-2 text-sm text-[color:var(--muted-foreground)]">Tic‑Tac‑Toe — You (X) vs AI (O)</div>
       <div className="grid grid-cols-3 gap-1 w-[180px] mx-auto">
         {board.map((c,i)=> (

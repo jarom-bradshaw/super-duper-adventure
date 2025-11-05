@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import GameResult from '../GameResult';
 
 export default function PacmanMini() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -6,6 +7,8 @@ export default function PacmanMini() {
   const dirRef = useRef<{ x: number; y: number }>({ x: 1, y: 0 });
   const nextRef = useRef<{ x: number; y: number }>({ x: 1, y: 0 });
   const gridRef = useRef<number[][]>([]);
+  const [finalScore, setFinalScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
   const stateRef = useRef({ w: 480, h: 320, cell: 16, px: 8, py: 8, gx: 18, gy: 8, dots: 0, alive: true, score: 0 });
   useEffect(() => {
     // simple small maze (0 empty, 1 wall, 2 dot)
@@ -51,7 +54,17 @@ export default function PacmanMini() {
       // ghost simple loop
       s.gx = 8 + Math.floor(6 * Math.sin(ghostPhase));
       s.gy = 9 + Math.floor(4 * Math.cos(ghostPhase * 0.7));
-      if (s.gx === s.px && s.gy === s.py) s.alive = false;
+      if (s.gx === s.px && s.gy === s.py) {
+        s.alive = false;
+        setFinalScore(s.score);
+        setShowResult(true);
+      }
+      // win condition - all dots collected
+      if (s.dots === 0) {
+        s.alive = false;
+        setFinalScore(s.score);
+        setShowResult(true);
+      }
       // draw
       ctx.clearRect(0,0,s.w,s.h);
       ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,s.w,s.h);
@@ -71,7 +84,15 @@ export default function PacmanMini() {
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, []);
   return (
-    <div className="mx-auto">
+    <div className="mx-auto relative">
+      {showResult && (
+        <GameResult
+          result="win"
+          playerScore={finalScore}
+          opponentScore={0}
+          onClose={() => setShowResult(false)}
+        />
+      )}
       <div className="mb-2 text-sm text-[color:var(--muted-foreground)]">Pac‑Man — Arrows</div>
       <canvas ref={canvasRef} width={480} height={320} className="rounded border border-[color:var(--glass-border)]" />
     </div>
