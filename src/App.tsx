@@ -19,7 +19,7 @@ function App() {
         <StarBackground />
         <div className="relative z-10 flex flex-col min-h-screen">
           <Header />
-          <main className="flex-1">
+          <main id="main-content" className="flex-1">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/resume" element={<Resume />} />
