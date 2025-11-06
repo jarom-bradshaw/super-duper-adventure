@@ -3,9 +3,14 @@
   --bg: #f7f5f2;
   --text: #0b0b0f;
   --muted: #eceae7;
-  --muted-foreground: #41434a;
+  --muted-foreground: #5a4f47; /* warm brown-gray */
   --link: #ea580c; /* orange-600 */
   --accent: #ef4444; /* red-500 */
+
+  /* Warm Gray Shades (light mode) */
+  --gray-300: #6b5d53; /* warm medium gray */
+  --gray-400: #5a4f47; /* warm darker gray */
+  --gray-500: #4a413b; /* warm darkest gray */
 
   /* Meteors (light theme) */
   --meteor-color: #e25822; /* orange-red */
