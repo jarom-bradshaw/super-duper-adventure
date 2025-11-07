@@ -187,11 +187,11 @@
     left: 0;
     width: 66.666%;
     height: 100vh;
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-right: 1px solid var(--glass-border);
+    background: var(--muted);
+    border-right: 1px solid color-mix(in srgb, var(--muted-foreground) 25%, transparent);
     flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
     padding: 1rem;
     padding-top: calc(64px + 1rem);
     gap: 0.5rem;
@@ -201,6 +201,14 @@
     pointer-events: none;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .header__nav::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    background: transparent;
   }
 
   .header__nav[aria-hidden="false"] {
