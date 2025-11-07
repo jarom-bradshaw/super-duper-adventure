@@ -9,7 +9,7 @@ const Resume = () => {
             <h1 className="text-5xl font-bold gradient-text mb-4">Jarom Bradshaw</h1>
             <p className="text-gray-300 mb-2">Rexburg, Idaho, USA</p>
             <p className="text-gray-400 text-sm mb-4">
-              Last Updated: January 27, 2025
+              Last Updated: November 7, 2025
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-[color:var(--link)]">
               <a href="mailto:jarombrads@gmail.com" className="hover:text-[color:var(--accent)]">
@@ -42,9 +42,9 @@ const Resume = () => {
             <div className="glass-card rounded-lg p-8 mb-8">
               <h2 className="text-3xl font-bold text-[color:var(--link)] mb-4">SUMMARY</h2>
               <p className="text-gray-300">
-                Student at BYU-Idaho who is smart, fun to work with, and gets things done. Has
-                saved over 1,000 hours of staffing work through automations developed for BYU-I
-                Support Center. 
+                Student at BYU-Idaho who is enjoyable to work with, has a passion for math and can use 
+                that to understand systems that used to be good, but became unreadable and hard to maintain 
+                legacy codebases.
               </p>
             </div>
           </Section>
