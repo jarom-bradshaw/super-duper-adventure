@@ -31,8 +31,10 @@ const Home = () => {
               machine learning, and data engineering. My work spans from designing
               Discrete Event Modeling systems for supply chain optimization at Hill Air
               Force Base to building REST APIs and maintaining Power BI reports at BYU-I
-              Support Center. I'm passionate about creating efficient solutions that solve
-              real-world problems.
+              Support Center. But enough about that, something I've done is save over a 
+              thousand hours of staffing work by developing automations for the Support Center.
+              Something unique to me is that I can wiggle my ears. I love playing the piano
+              and cooking up food for my wife and friends when they come over.
             </p>
 
             <h3 className="text-2xl font-bold text-[color:var(--link)] mb-4">Current Focus</h3>

@@ -33,10 +33,10 @@ const Referrals = () => {
         <Section>
           <div className="text-center mb-12">
             <h1 className="text-5xl font-bold gradient-text mb-4">Referrals</h1>
-            <p className="text-[color:var(--gray-300)] text-lg">
+            <p className="text-gray-300 text-lg">
               Recommendations and references from colleagues and mentors
             </p>
-            <p className="text-[color:var(--gray-400)] text-sm mt-2">
+            <p className="text-gray-400 text-sm mt-2">
               Referrals available upon request
             </p>
           </div>
@@ -44,10 +44,10 @@ const Referrals = () => {
           {referrals.length === 0 ? (
             <Section>
               <div className="glass-card rounded-lg p-8 text-center">
-                <p className="text-[color:var(--gray-300)] text-lg mb-4">
+                <p className="text-gray-300 text-lg mb-4">
                   Referrals will be displayed here once added.
                 </p>
-                <p className="text-[color:var(--gray-400)] text-sm">
+                <p className="text-gray-400 text-sm">
                   To add a referral, edit the referrals array in{' '}
                   <code className="text-[color:var(--link)]">src/pages/Referrals.tsx</code>
                 </p>
@@ -61,16 +61,16 @@ const Referrals = () => {
                     <h3 className="text-2xl font-bold text-[color:var(--link)] mb-1">
                       {referral.name}
                     </h3>
-                    <p className="text-[color:var(--gray-400)] mb-1">
+                    <p className="text-gray-400 mb-1">
                       {referral.title} at {referral.company}
                     </p>
-                    <p className="text-[color:var(--gray-500)] text-sm">{referral.relationship}</p>
+                    <p className="text-gray-500 text-sm">{referral.relationship}</p>
                   </div>
-                  <blockquote className="text-[color:var(--gray-300)] italic mb-4 border-l-4 border-[color:var(--link)] pl-4">
+                  <blockquote className="text-gray-300 italic mb-4 border-l-4 border-[color:var(--link)] pl-4">
                     "{referral.text}"
                   </blockquote>
                   {referral.contact && (
-                    <p className="text-sm text-[color:var(--gray-400)]">
+                    <p className="text-sm text-gray-400">
                       Contact:{' '}
                       <a
                         href={`mailto:${referral.contact}`}

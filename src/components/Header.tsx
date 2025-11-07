@@ -1,8 +1,11 @@
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import '../styles/header.css';
 
 const Header = () => {
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
     { path: '/', label: 'Home' },
@@ -16,24 +19,71 @@ const Header = () => {
     { path: '/referrals', label: 'Referrals' },
   ];
 
+  // Close menu when route changes
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close menu on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [menuOpen]);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-20 glass-card">
-      <nav className="container mx-auto px-4 md:px-6 py-4">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl md:text-2xl font-bold gradient-text">
+    <>
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+      <header className="header" role="banner">
+        <nav className="header__container" aria-label="Main navigation">
+          <Link 
+            to="/" 
+            className="header__logo"
+            aria-label="Jarom Bradshaw - Home"
+          >
             Jarom Bradshaw
           </Link>
-          <div className="flex items-center gap-4">
-            <ul className="flex space-x-2 md:space-x-6">
+          <div className="header__nav-wrapper">
+            <button
+              type="button"
+              className="header__menu-toggle"
+              aria-expanded={menuOpen}
+              aria-controls="main-nav"
+              aria-label="Toggle navigation menu"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <span className="header__menu-toggle-icon" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </button>
+            {menuOpen && (
+              <div
+                className="header__backdrop"
+                aria-hidden="true"
+                onClick={() => setMenuOpen(false)}
+              />
+            )}
+            <ul 
+              id="main-nav"
+              className="header__nav"
+              aria-hidden={!menuOpen}
+            >
               {navItems.map((item) => (
-                <li key={item.path}>
+                <li key={item.path} className="header__nav-item">
                   <Link
                     to={item.path}
-                  className={`text-sm md:text-base transition-colors hover:text-[color:var(--link)] ${
-                      location.pathname === item.path
-                      ? 'text-[color:var(--link)]'
-                      : 'text-[color:var(--muted-foreground)]'
+                    className={`header__nav-link ${
+                      location.pathname === item.path ? 'header__nav-link--active' : ''
                     }`}
+                    aria-current={location.pathname === item.path ? 'page' : undefined}
                   >
                     {item.label}
                   </Link>
@@ -42,9 +92,9 @@ const Header = () => {
             </ul>
             <ThemeToggle />
           </div>
-        </div>
-      </nav>
-    </header>
+        </nav>
+      </header>
+    </>
   );
 };
 
