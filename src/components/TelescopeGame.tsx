@@ -18,6 +18,7 @@ import InvadersMini from './arcade/InvadersMini';
 import PacmanMini from './arcade/PacmanMini';
 import FroggerMini from './arcade/FroggerMini';
 import Game2048Mini from './arcade/Game2048Mini';
+import rainStormAudio from '../assets/rain-and-little-storm.mp3';
 
 type Vec2 = { x: number; y: number };
 
@@ -80,11 +81,10 @@ export default function TelescopeGame() {
   const [p2Name, setP2Name] = useState('Player 2');
   const [windTarget, setWindTarget] = useState(6);
   const [streakTarget, setStreakTarget] = useState(0);
-  const [ambientOn, setAmbientOn] = useState(false);
   const [volume, setVolume] = useState(0.15);
   const [started, setStarted] = useState(false);
   const [arcadeOpen, setArcadeOpen] = useState(false);
-  const [, setActiveGame] = useState<'pong' | 'flappy' | 'breakout' | 'invaders' | 'pacman' | 'frogger'>('pong');
+  const [, setActiveGame] = useState<'pong' | 'flappy' | 'breakout' | 'invaders' | 'pacman' | 'frogger' | 'game2048'>('pong');
 
   // Wind curls moving across the sky
   type Wind = { id: number; x: number; y: number; speed: number; life: number; maxLife: number; scale: number };
@@ -96,13 +96,40 @@ export default function TelescopeGame() {
   const [streaks, setStreaks] = useState<Streak[]>([]);
   const streakNextId = useRef(1);
   const streakSpawnTimer = useRef(0);
+  // Rain particles
+  type Rain = { id: number; x: number; y: number; speed: number; length: number; opacity: number };
+  const [rain, setRain] = useState<Rain[]>([]);
+  const rainNextId = useRef(1);
+  const rainSpawnTimer = useRef(0);
+  // Clouds
+  type Cloud = { id: number; x: number; y: number; speed: number; size: number; opacity: number };
+  const [clouds, setClouds] = useState<Cloud[]>(() => {
+    // Initialize with 4-5 clouds at random positions
+    const initialClouds: Cloud[] = [];
+    for (let i = 0; i < 4; i++) {
+      initialClouds.push({
+        id: i + 1,
+        x: Math.random() * VIEW_W,
+        y: 80 + Math.random() * 200,
+        speed: 8 + Math.random() * 12,
+        size: 60 + Math.random() * 80,
+        opacity: 0.2 + Math.random() * 0.2,
+      });
+    }
+    return initialClouds;
+  });
+  const cloudNextId = useRef(5);
+  // Lightning
+  const [lightningFlash, setLightningFlash] = useState(0);
+  const lightningFlashRef = useRef(0);
+  const lightningNextFlashRef = useRef(performance.now() + 5000 + Math.random() * 10000);
   // Lanterns & music box & snowglobe & hourglass
   const [lanternOn, setLanternOn] = useState<boolean>(() => {
     const saved = localStorage.getItem('lanternOn');
     return saved == null ? true : saved === '1';
   });
   useEffect(() => { localStorage.setItem('lanternOn', lanternOn ? '1' : '0'); }, [lanternOn]);
-  const [musicTrack, setMusicTrack] = useState<'none'|'chimes'|'forest'|'box'>(() => (localStorage.getItem('musicTrack') as any) || 'none');
+  const [musicTrack, setMusicTrack] = useState<'none'|'storm'>(() => (localStorage.getItem('musicTrack') as any) || 'none');
   useEffect(() => { localStorage.setItem('musicTrack', musicTrack); }, [musicTrack]);
   const [boxShakeUntil, setBoxShakeUntil] = useState<number>(0);
   const [hourglassHeld, setHourglassHeld] = useState(false);
@@ -110,55 +137,52 @@ export default function TelescopeGame() {
   const [challengeWatered, setChallengeWatered] = useState(0);
   const [challengeShaken, setChallengeShaken] = useState(0);
   const [boardOpen, setBoardOpen] = useState(false);
-  // Ambient audio (simple gentle tone with slow amplitude LFO)
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const mainOscRef = useRef<OscillatorNode | null>(null);
-  const lfoRef = useRef<OscillatorNode | null>(null);
-  const mainGainRef = useRef<GainNode | null>(null);
-  const lfoGainRef = useRef<GainNode | null>(null);
+  // HTML5 Audio for MP3 files (storm/rain track)
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
-  function startAmbient() {
-    if (audioCtxRef.current) return;
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const mainOsc = ctx.createOscillator();
-    const mainGain = ctx.createGain();
-    const lfo = ctx.createOscillator();
-    const lfoGain = ctx.createGain();
-    mainOsc.type = 'sine';
-    mainOsc.frequency.value = 432; // gentle
-    mainGain.gain.value = volume;
-    lfo.type = 'sine';
-    lfo.frequency.value = 0.15; // slow tremolo
-    lfoGain.gain.value = volume * 0.6;
-    lfo.connect(lfoGain);
-    lfoGain.connect(mainGain.gain);
-    mainOsc.connect(mainGain);
-    mainGain.connect(ctx.destination);
-    mainOsc.start();
-    lfo.start();
-    audioCtxRef.current = ctx;
-    mainOscRef.current = mainOsc;
-    lfoRef.current = lfo;
-    mainGainRef.current = mainGain;
-    lfoGainRef.current = lfoGain;
+  function startStormAmbient() {
+    // Stop any existing audio
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+      audioElementRef.current = null;
+    }
+
+    // Use HTML5 Audio for storm/rain MP3
+    const audio = new Audio(rainStormAudio);
+    audio.loop = true;
+    audio.volume = volume;
+    audio.play().catch(err => {
+      console.warn('Audio play failed (user interaction may be required):', err);
+    });
+    audioElementRef.current = audio;
   }
+
+
   function stopAmbient() {
-    if (!audioCtxRef.current) return;
-    try { mainOscRef.current?.stop(); lfoRef.current?.stop(); } catch {}
-    audioCtxRef.current.close();
-    audioCtxRef.current = null;
-    mainOscRef.current = null;
-    lfoRef.current = null;
-    mainGainRef.current = null;
-    lfoGainRef.current = null;
+    // Stop HTML5 audio
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+      audioElementRef.current.currentTime = 0;
+      audioElementRef.current = null;
+    }
   }
+
   useEffect(() => {
-    if (ambientOn) startAmbient(); else stopAmbient();
+    stopAmbient();
+    if (musicTrack === 'storm') {
+      startStormAmbient();
+    }
+    return () => {
+      stopAmbient();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ambientOn]);
+  }, [musicTrack]);
+
   useEffect(() => {
-    if (mainGainRef.current) mainGainRef.current.gain.value = volume;
-    if (lfoGainRef.current) lfoGainRef.current.gain.value = volume * 0.6;
+    // Update HTML5 audio volume
+    if (audioElementRef.current) {
+      audioElementRef.current.volume = volume;
+    }
   }, [volume]);
   type Firefly = { id: number; x: number; y: number; vx: number; vy: number };
   const [flies, setFlies] = useState<Firefly[]>(() => {
@@ -245,7 +269,7 @@ export default function TelescopeGame() {
           });
         }
         else if (nearHourglass) { setHourglassHeld((h) => { if (!h) { setJarHeld(false); setPitcherHeld(false); setSeedsHeld(false);} return !h; }); }
-        else if (nearMusic) { setMusicTrack(t=> t==='none'?'box': t==='box'?'chimes': t==='chimes'?'forest':'none'); }
+        else if (nearMusic) { setMusicTrack(t=> t==='none'?'storm':'none'); }
         else if (nearGlobe) { setBoxShakeUntil(performance.now()+15000); }
         else if (nearBoardBox) { setBoardOpen(true); }
         else if (nearLanterns) { setLanternOn(v=>!v); }
@@ -454,6 +478,59 @@ export default function TelescopeGame() {
       .map((s) => ({ ...s, x: s.x + s.vx * dt, y: s.y + s.vy * dt, life: s.life + dt }))
       .filter((s) => s.life < s.maxLife));
 
+    // Rain particles
+    rainSpawnTimer.current -= dt;
+    if (rain.length < 150 && rainSpawnTimer.current <= 0) {
+      rainSpawnTimer.current = 0.05; // Spawn frequently for continuous rain
+      const id = rainNextId.current++;
+      setRain((prev) => [...prev, {
+        id,
+        x: Math.random() * VIEW_W,
+        y: -10,
+        speed: 200 + Math.random() * 150,
+        length: 8 + Math.random() * 12,
+        opacity: 0.3 + Math.random() * 0.2,
+      }]);
+    }
+    setRain((prev) => prev
+      .map((r) => ({ ...r, y: r.y + r.speed * dt }))
+      .filter((r) => r.y < VIEW_H + 20));
+
+    // Clouds - move and respawn when they leave screen
+    setClouds((prev) => {
+      const moved = prev.map((c) => ({ ...c, x: c.x + c.speed * dt }));
+      const active = moved.filter((c) => c.x <= VIEW_W + 100);
+      // Respawn clouds that left the screen and maintain 4 clouds
+      const toSpawn = 4 - active.length;
+      const newClouds = [...active];
+      for (let i = 0; i < toSpawn; i++) {
+        newClouds.push({
+          id: cloudNextId.current++,
+          x: -100 - Math.random() * 200,
+          y: 80 + Math.random() * 200,
+          speed: 8 + Math.random() * 12,
+          size: 60 + Math.random() * 80,
+          opacity: 0.2 + Math.random() * 0.2,
+        });
+      }
+      return newClouds;
+    });
+
+    // Lightning flash
+    const now = performance.now();
+    if (now >= lightningNextFlashRef.current) {
+      // Trigger lightning flash
+      lightningFlashRef.current = 1.0;
+      setLightningFlash(1.0);
+      // Schedule next flash randomly between 5-15 seconds
+      lightningNextFlashRef.current = now + 5000 + Math.random() * 10000;
+    }
+    // Fade lightning flash (fade over ~400ms)
+    if (lightningFlashRef.current > 0) {
+      lightningFlashRef.current = Math.max(0, lightningFlashRef.current - dt * 2.5);
+      setLightningFlash(lightningFlashRef.current);
+    }
+
     // Pour water to bloom flowers when pitcher held, key Q
     // We check a flag by peeking keyboard state via a simple latch: use down state captured earlier
 
@@ -553,12 +630,30 @@ export default function TelescopeGame() {
               <input type="range" min={0} max={20} step={1} value={streakTarget} onChange={(e) => setStreakTarget(parseInt(e.target.value))} className="w-full" />
             </div>
             <div className="text-sm mb-3">
-              <div className="mb-1 flex items-center justify-between">
-                <span>Ambient</span>
-                <button type="button" className="rounded px-2 py-0.5 border border-[color:var(--glass-border)] bg-[color:var(--glass-bg)]" onClick={() => setAmbientOn((v) => !v)}>{ambientOn ? 'Pause' : 'Play'}</button>
-              </div>
+              <div className="mb-1">Rain Ambiance: {musicTrack === 'none' ? 'Off' : 'On'}</div>
+              <div className="mb-1 text-xs text-[color:var(--muted-foreground)]">Press E near music box to toggle</div>
               <div className="mb-1">Volume</div>
               <input type="range" min={0} max={1} step={0.01} value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} className="w-full" />
+              <div className="mt-2 text-xs text-[color:var(--muted-foreground)]">
+                Sound Effect by{' '}
+                <a 
+                  href="https://pixabay.com/users/audiopapkin-14728698/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=298087" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[color:var(--text)]"
+                >
+                  Paweł Spychała
+                </a>
+                {' '}from{' '}
+                <a 
+                  href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=298087" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[color:var(--text)]"
+                >
+                  Pixabay
+                </a>
+              </div>
             </div>
             <div className="text-sm mb-2">
               <label className="inline-flex items-center gap-2">
@@ -618,6 +713,37 @@ export default function TelescopeGame() {
             return <circle key={`bg-${s.id}`} cx={sx} cy={sy} r={1.8} fill="var(--text)" opacity={0.6} />;
           })}
         </g>
+        
+        {/* Rain particles - gentle falling rain */}
+        <g className="rain">
+          {rain.map((r) => (
+            <line
+              key={r.id}
+              x1={r.x}
+              y1={r.y}
+              x2={r.x}
+              y2={r.y + r.length}
+              stroke="rgba(200,220,255,0.4)"
+              strokeWidth={1.5}
+              opacity={r.opacity}
+            />
+          ))}
+        </g>
+
+        {/* Clouds */}
+        <g className="clouds">
+          {clouds.map((c) => (
+            <g key={c.id} opacity={c.opacity} transform={`translate(${c.x},${c.y})`}>
+              {/* Cloud shape made of overlapping circles */}
+              <circle cx={0} cy={0} r={c.size * 0.4} fill="rgba(255,255,255,0.3)" />
+              <circle cx={-c.size * 0.3} cy={-c.size * 0.1} r={c.size * 0.35} fill="rgba(255,255,255,0.3)" />
+              <circle cx={c.size * 0.3} cy={-c.size * 0.1} r={c.size * 0.35} fill="rgba(255,255,255,0.3)" />
+              <circle cx={-c.size * 0.15} cy={c.size * 0.15} r={c.size * 0.3} fill="rgba(255,255,255,0.3)" />
+              <circle cx={c.size * 0.15} cy={c.size * 0.15} r={c.size * 0.3} fill="rgba(255,255,255,0.3)" />
+            </g>
+          ))}
+        </g>
+
         {/* Fills */}
         <g className="hills">
           <path ref={hill3Ref} className="hill hill-3" d="M0,500 C200,430 400,530 600,480 C800,430 1000,520 1200,470 L1200,600 L0,600 Z" />
@@ -993,6 +1119,40 @@ export default function TelescopeGame() {
             );
           })}
         </g>
+
+        {/* Ambient light overlay - subtle baseline with lightning flash enhancement */}
+        {(() => {
+          const baseAlpha = 0.08;
+          const flashBoost = lightningFlash * 0.12;
+          const totalAlpha = baseAlpha + flashBoost;
+          // Interpolate between base color (dark blue/purple) and flash color (light blue/white)
+          const baseR = 80, baseG = 100, baseB = 140;
+          const flashR = 180, flashG = 200, flashB = 255;
+          const r = baseR + (flashR - baseR) * lightningFlash;
+          const g = baseG + (flashG - baseG) * lightningFlash;
+          const b = baseB + (flashB - baseB) * lightningFlash;
+          return (
+            <rect
+              x={0}
+              y={0}
+              width={VIEW_W}
+              height={VIEW_H}
+              fill={`rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${totalAlpha})`}
+            />
+          );
+        })()}
+
+        {/* Lightning flash overlay - brief subtle flash */}
+        {lightningFlash > 0 && (
+          <rect
+            x={0}
+            y={0}
+            width={VIEW_W}
+            height={VIEW_H}
+            fill="rgba(255,255,255,0.3)"
+            opacity={lightningFlash}
+          />
+        )}
       </svg>
 
       {/* center HUD removed per request */}
