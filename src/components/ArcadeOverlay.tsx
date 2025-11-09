@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-type GameKey = 'pong' | 'flappy' | 'breakout' | 'invaders' | 'pacman' | 'frogger';
+type GameKey = 'pong' | 'flappy' | 'breakout' | 'invaders' | 'pacman' | 'frogger' | 'game2048';
 
 type Props = {
   open: boolean;
@@ -16,6 +16,7 @@ const GAMES: { key: GameKey; name: string; desc: string }[] = [
   { key: 'invaders', name: 'Invaders', desc: 'Defend against aliens' },
   { key: 'pacman', name: 'Pac‑Man', desc: 'Eat dots, avoid ghost' },
   { key: 'frogger', name: 'Frogger', desc: 'Cross road and river' },
+  { key: 'game2048', name: '2048', desc: 'Slide and merge tiles' },
 ];
 
 export default function ArcadeOverlay({ open, onClose, onStartGame, renderActiveGame }: Props) {

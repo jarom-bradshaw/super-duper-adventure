@@ -24,6 +24,11 @@
   --gradient-3: #fb923c;
   --gradient-4: #ef4444;
   --gradient-5: #f43f5e;
+
+  /* Gray Colors (dark neutral grays in light mode) */
+  --gray-300: #6b7280;
+  --gray-400: #4b5563;
+  --gray-500: #374151;
 }
 
 :root[data-theme="stars"] {
@@ -52,6 +57,11 @@
   --gradient-3: #3b82f6;
   --gradient-4: #6366f1;
   --gradient-5: #8b5cf6;
+
+  /* Gray Colors (cool, same as Tailwind defaults in dark mode) */
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
 }
 
 
