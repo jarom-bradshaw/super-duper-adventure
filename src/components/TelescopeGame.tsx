@@ -17,6 +17,7 @@ import BreakoutMini from './arcade/BreakoutMini';
 import InvadersMini from './arcade/InvadersMini';
 import PacmanMini from './arcade/PacmanMini';
 import FroggerMini from './arcade/FroggerMini';
+import Game2048Mini from './arcade/Game2048Mini';
 
 type Vec2 = { x: number; y: number };
 
@@ -1010,6 +1011,7 @@ export default function TelescopeGame() {
               case 'invaders': return <InvadersMini />;
               case 'pacman': return <PacmanMini />;
               case 'frogger': return <FroggerMini />;
+              case 'game2048': return <Game2048Mini />;
               default: return null;
             }
           }}
