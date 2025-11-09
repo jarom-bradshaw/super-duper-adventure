@@ -9,6 +9,11 @@ export default {
       colors: {
         'dark-blue': '#0d1d31',
         'dark-blue-black': '#0c0d13',
+        gray: {
+          300: 'var(--gray-300)',
+          400: 'var(--gray-400)',
+          500: 'var(--gray-500)',
+        },
       },
       animation: {
         'gradient': 'gradient 8s ease infinite',
