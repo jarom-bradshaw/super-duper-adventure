@@ -4,6 +4,7 @@ import { samplePathYAtX } from './game/shared/paths';
 import { GRAVITY, MOVE_ACCEL, MAX_SPEED_X, JUMP_SPEED, FRICTION_AIR, FRICTION_GROUND, clampDt } from './game/shared/physics';
 import GameOverlay from './GameOverlay';
 import desertSunAudio from '../assets/desert-sun-164212.mp3';
+import pterodactylSvg from '../assets/pterodatcyl.svg?url';
 
 type Vec2 = { x: number; y: number };
 
@@ -24,6 +25,23 @@ type Player = {
 type Meteor = { id: number; pos: Vec2; vel: Vec2; radius: number; active: boolean };
 type Explosion = { id: number; pos: Vec2; life: number; maxLife: number; radius: number };
 type Dinosaur = { id: number; x: number; y: number; speed: number; active: boolean; warningUntil: number; spawnTime: number; ridgeIndex: number };
+type Pterodactyl = {
+  id: number;
+  // Bezier curve points for natural swooping motion
+  startX: number;
+  startY: number;
+  controlX: number; // Dive point (aims at player)
+  controlY: number;
+  endX: number;
+  endY: number;
+  progress: number; // 0 to 1, progress along the curve
+  speed: number; // How fast it moves along the curve
+  active: boolean;
+  warningUntil: number;
+  spawnTime: number;
+  targetPlayerIndex: number; // Which player to target
+  fromLeft: boolean; // true if coming from left (no flip), false if from right (flip 180)
+};
 
 const VIEW_W = 1200;
 const VIEW_H = 600;
@@ -34,6 +52,15 @@ const DINOSAUR_WARNING_DURATION = 3;
 const DINOSAUR_SPEED = 250;
 const DINOSAUR_DAMAGE = 1.5;
 const DINOSAUR_COLLISION_RADIUS = 30;
+
+// Pterodactyl constants
+const PTERODACTYL_SPAWN_INTERVAL = 15; // Spawn every 15 seconds
+const PTERODACTYL_WARNING_DURATION = 2;
+const PTERODACTYL_SPEED = 0.2; // Progress per second along curve (much slower)
+const PTERODACTYL_DAMAGE = 1.5;
+const PTERODACTYL_COLLISION_RADIUS = 40;
+const PTERODACTYL_START_HEIGHT = 80; // Start high in the sky
+const PTERODACTYL_END_HEIGHT = 80; // End high in the sky
 
 function useRaf(callback: (dt: number, tSec: number) => void) {
   const lastRef = useRef<number | null>(null);
@@ -62,8 +89,8 @@ export default function MeteorGame() {
   const ridge2Ref = useRef<SVGPathElement>(null);
   const ridge3Ref = useRef<SVGPathElement>(null);
 
-  const leftKeys = useRef({ left: false, right: false, up: false, down: false, e: false });
-  const rightKeys = useRef({ left: false, right: false, up: false, down: false, e: false });
+  const leftKeys = useRef({ left: false, right: false, up: false, down: false, e: false, enter: false });
+  const rightKeys = useRef({ left: false, right: false, up: false, down: false, e: false, enter: false });
 
   const [players, setPlayers] = useState<Player[]>([
     { pos: { x: 250, y: 515 }, vel: { x: 0, y: 0 }, grounded: false, facing: 1, dropUntil: 0, lives: 3, invulnUntil: 0, score: 0, streak: 0 },
@@ -75,6 +102,7 @@ export default function MeteorGame() {
   const [meteors, setMeteors] = useState<Meteor[]>([]);
   const [explosions, setExplosions] = useState<Explosion[]>([]);
   const [dinosaurs, setDinosaurs] = useState<Dinosaur[]>([]);
+  const [pterodactyls, setPterodactyls] = useState<Pterodactyl[]>([]);
   const [started, setStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [timeSurvived, setTimeSurvived] = useState(0);
@@ -85,6 +113,8 @@ export default function MeteorGame() {
   const dinosaurNextId = useRef(1);
   const dinosaurSpawnTimer = useRef(0);
   const nextRidgeIndex = useRef(0); // Track which ridge to use next (0, 1, or 2)
+  const pterodactylNextId = useRef(1);
+  const pterodactylSpawnTimer = useRef(0);
   const [showMenu, setShowMenu] = useState(false);
   const [volume, setVolume] = useState(0.15);
   const [musicEnabled, setMusicEnabled] = useState(true);
@@ -94,8 +124,14 @@ export default function MeteorGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent, down: boolean) => {
-      if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'e', 'E'].includes(e.key)) e.preventDefault();
-      if (e.key === 'e' || e.key === 'E') { leftKeys.current.e = down; rightKeys.current.e = down; }
+      if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'e', 'E', 'Enter'].includes(e.key)) e.preventDefault();
+      // Make E and Enter interchangeable
+      if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') {
+        leftKeys.current.e = down;
+        rightKeys.current.e = down;
+        leftKeys.current.enter = down;
+        rightKeys.current.enter = down;
+      }
       if (e.key === 'a') leftKeys.current.left = down;
       if (e.key === 'd') leftKeys.current.right = down;
       if (e.key === 'w') leftKeys.current.up = down;
@@ -237,6 +273,56 @@ export default function MeteorGame() {
       }
       
       setDinosaurs((prev) => [...prev, ...newDinosaurs]);
+    }
+
+    // Spawn pterodactyls
+    pterodactylSpawnTimer.current += dt;
+    if (pterodactylSpawnTimer.current >= PTERODACTYL_SPAWN_INTERVAL) {
+      pterodactylSpawnTimer.current = 0;
+      const spawnTime = tSec;
+      const warningUntil = spawnTime + PTERODACTYL_WARNING_DURATION;
+      
+      // Pick a random player to target
+      const livingPlayers = playersRef.current.filter((p) => p.lives > 0);
+      if (livingPlayers.length > 0) {
+        const targetPlayer = livingPlayers[Math.floor(Math.random() * livingPlayers.length)];
+        const targetPlayerIndex = playersRef.current.indexOf(targetPlayer);
+        
+        // Determine start side (random: left or right)
+        const fromLeft = Math.random() < 0.5;
+        const startX = fromLeft ? -150 : VIEW_W + 150;
+        const startY = PTERODACTYL_START_HEIGHT;
+        
+        // End on opposite side
+        const endX = fromLeft ? VIEW_W + 150 : -150;
+        const endY = PTERODACTYL_END_HEIGHT;
+        
+        // Control point aims at player's position at spawn time for sharp dive
+        // Make it dive to the player's actual Y position (or close to it) for a sharp swoop
+        // Allow it to dive as low as the player is on the hills
+        const controlX = targetPlayer.pos.x;
+        const controlY = targetPlayer.pos.y; // Dive directly to player's Y position
+        
+        setPterodactyls((prev) => [
+          ...prev,
+          {
+            id: pterodactylNextId.current++,
+            startX,
+            startY,
+            controlX,
+            controlY,
+            endX,
+            endY,
+            progress: 0,
+            speed: PTERODACTYL_SPEED,
+            active: true,
+            warningUntil,
+            spawnTime,
+            targetPlayerIndex,
+            fromLeft,
+          },
+        ]);
+      }
     }
 
     // Auto-drop apple every 30 seconds
@@ -474,6 +560,82 @@ export default function MeteorGame() {
       return updated.filter((d) => d.active);
     });
 
+    // Update pterodactyls along their bezier curve paths
+    setPterodactyls((prev) => {
+      const updated = prev.map((ptero) => {
+        if (!ptero.active) return ptero;
+        
+        // Only move after warning period
+        if (tSec >= ptero.warningUntil) {
+          ptero.progress += ptero.speed * dt;
+          
+          // Deactivate when path is complete
+          if (ptero.progress >= 1) {
+            ptero.active = false;
+          }
+        }
+        
+        return ptero;
+      });
+      
+      // Calculate positions using quadratic bezier curve
+      // B(t) = (1-t)²P₀ + 2(1-t)tP₁ + t²P₂
+      // Where P₀ is start, P₁ is control, P₂ is end
+      updated.forEach((ptero) => {
+        if (!ptero.active || tSec < ptero.warningUntil) return;
+        
+        const t = ptero.progress;
+        const oneMinusT = 1 - t;
+        
+        // Quadratic bezier curve calculation
+        const x = oneMinusT * oneMinusT * ptero.startX + 
+                  2 * oneMinusT * t * ptero.controlX + 
+                  t * t * ptero.endX;
+        const y = oneMinusT * oneMinusT * ptero.startY + 
+                  2 * oneMinusT * t * ptero.controlY + 
+                  t * t * ptero.endY;
+        
+        // Check collision with target player
+        const targetPlayer = playersRef.current[ptero.targetPlayerIndex];
+        if (targetPlayer && targetPlayer.lives > 0 && tSec >= targetPlayer.invulnUntil) {
+          const playerX = targetPlayer.pos.x;
+          const playerY = targetPlayer.pos.y;
+          const dist = Math.hypot(playerX - x, playerY - y);
+          
+          if (dist < PTERODACTYL_COLLISION_RADIUS) {
+            // Collision! Deal damage
+            setPlayers((prevP) => {
+              return prevP.map((pl, pi) => {
+                if (pi === ptero.targetPlayerIndex && pl.lives > 0) {
+                  const newLives = Math.max(0, pl.lives - PTERODACTYL_DAMAGE);
+                  setToasts((ts) => [
+                    ...ts,
+                    {
+                      id: nextId.current++,
+                      player: pi,
+                      text: 'Pterodactyl Hit -1.5❤',
+                      life: 0,
+                      maxLife: 1.0,
+                    },
+                  ]);
+                  return {
+                    ...pl,
+                    lives: newLives,
+                    invulnUntil: tSec + 1.5,
+                    deathAt: newLives <= 0 ? tSec : pl.deathAt,
+                    streak: 0,
+                  };
+                }
+                return pl;
+              });
+            });
+          }
+        }
+      });
+      
+      return updated.filter((p) => p.active);
+    });
+
     // Check game over
     setPlayers((prevP) => {
       const allDead = prevP.every((p) => p.lives <= 0);
@@ -609,6 +771,97 @@ export default function MeteorGame() {
             const alpha = 1 - t;
             return (
               <circle key={e.id} cx={e.pos.x} cy={e.pos.y} r={r} strokeWidth={2} strokeOpacity={alpha} />
+            );
+          })}
+        </g>
+
+        {/* Warning indicators for incoming pterodactyls */}
+        <g className="pterodactyl-warnings">
+          {pterodactyls.map((ptero) => {
+            const currentTime = currentTimeRef.current;
+            if (currentTime >= ptero.warningUntil) return null;
+            
+            const warningProgress = (currentTime - ptero.spawnTime) / PTERODACTYL_WARNING_DURATION;
+            const pulse = Math.sin(warningProgress * Math.PI * 8) * 0.5 + 0.5;
+            const targetPlayer = playersRef.current[ptero.targetPlayerIndex];
+            
+            if (!targetPlayer) return null;
+            
+            return (
+              <g key={`ptero-warning-${ptero.id}`}>
+                {/* Sky warning flash */}
+                <rect
+                  x={0}
+                  y={0}
+                  width={VIEW_W}
+                  height={120}
+                  fill="#ff8800"
+                  opacity={pulse * 0.25}
+                />
+                {/* Warning text in sky */}
+                <text
+                  x={VIEW_W / 2}
+                  y={70}
+                  textAnchor="middle"
+                  fontSize="28"
+                  fill="#ff8800"
+                  fontWeight="bold"
+                  opacity={pulse}
+                >
+                  ⚠ PTERODACTYL INCOMING! ⚠
+                </text>
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Pterodactyls */}
+        <g className="pterodactyls">
+          {pterodactyls.map((ptero) => {
+            const currentTime = currentTimeRef.current;
+            if (currentTime < ptero.warningUntil || !ptero.active) return null;
+            
+            const t = ptero.progress;
+            const oneMinusT = 1 - t;
+            
+            // Calculate current position on bezier curve
+            const x = oneMinusT * oneMinusT * ptero.startX + 
+                      2 * oneMinusT * t * ptero.controlX + 
+                      t * t * ptero.endX;
+            const y = oneMinusT * oneMinusT * ptero.startY + 
+                      2 * oneMinusT * t * ptero.controlY + 
+                      t * t * ptero.endY;
+            
+            // Scale for rendering (pterodactyl SVG viewBox is 0 0 26324 17977, so it's huge)
+            const scale = 0.005; // Size as requested
+            const svgWidth = 26324;
+            const svgHeight = 17977;
+            const centerX = svgWidth / 2;
+            const centerY = svgHeight / 2;
+            
+            // SVG faces right by default
+            // Transform order in SVG (applied right-to-left): 
+            // 1. translate(-centerX, -centerY) - move to center
+            // 2. scale() - scale and optionally flip horizontally
+            // 3. translate(x, y) - move to position
+            // - From left: moving right, no horizontal flip needed (faces right)
+            // - From right: moving left, flip horizontally (scale x = -1) to face left
+            const scaleX = ptero.fromLeft ? scale : -scale;
+            
+            return (
+              <g
+                key={ptero.id}
+                transform={`translate(${x}, ${y}) scale(${scaleX}, ${scale}) translate(-${centerX}, -${centerY})`}
+                opacity={0.95}
+              >
+                {/* Pterodactyl SVG - using image element to load the SVG file */}
+                <image
+                  href={pterodactylSvg}
+                  width={svgWidth}
+                  height={svgHeight}
+                  preserveAspectRatio="xMidYMid"
+                />
+              </g>
             );
           })}
         </g>
@@ -761,6 +1014,7 @@ export default function MeteorGame() {
               setMeteors([]);
               setExplosions([]);
               setDinosaurs([]);
+              setPterodactyls([]);
               setPlayers([
                 { pos: { x: 250, y: 515 }, vel: { x: 0, y: 0 }, grounded: false, facing: 1, dropUntil: 0, lives: 3, invulnUntil: 0, score: 0, streak: 0 },
                 { pos: { x: 950, y: 525 }, vel: { x: 0, y: 0 }, grounded: false, facing: -1, dropUntil: 0, lives: 3, invulnUntil: 0, score: 0, streak: 0 },
@@ -770,6 +1024,8 @@ export default function MeteorGame() {
               setGameOver(false);
               setStarted(true);
               dinosaurSpawnTimer.current = 0;
+              pterodactylSpawnTimer.current = 0;
+              pterodactylNextId.current = 1;
               currentTimeRef.current = 0;
               nextRidgeIndex.current = 0;
             }}
