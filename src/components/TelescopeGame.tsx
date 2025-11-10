@@ -631,7 +631,13 @@ export default function TelescopeGame() {
             </div>
             <div className="text-sm mb-3">
               <div className="mb-1">Rain Ambiance: {musicTrack === 'none' ? 'Off' : 'On'}</div>
-              <div className="mb-1 text-xs text-[color:var(--muted-foreground)]">Press E near music box to toggle</div>
+              <button
+                type="button"
+                className="px-3 py-1 bg-[color:var(--link)]/20 text-[color:var(--link)] rounded-md hover:bg-[color:var(--link)]/30 mb-2"
+                onClick={() => setMusicTrack((t) => t === 'none' ? 'storm' : 'none')}
+              >
+                {musicTrack === 'none' ? 'Turn On' : 'Turn Off'}
+              </button>
               <div className="mb-1">Volume</div>
               <input type="range" min={0} max={1} step={0.01} value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} className="w-full" />
               <div className="mt-2 text-xs text-[color:var(--muted-foreground)]">
@@ -1029,10 +1035,9 @@ export default function TelescopeGame() {
         {/* One stick figure */}
         <g className="figures">
           {(() => {
-            const sway = player.grounded && Math.abs(player.vel.x) < 1 ? Math.sin(idlePhase.current * 2) * 3 : 0;
-            const tx = player.pos.x + sway;
+            const tx = player.pos.x;
             const ty = player.pos.y;
-             return (
+            return (
               <g className="figure" transform={`translate(${tx},${ty})`}>
                 <circle cx="0" cy="-40" r={14} />
                 <path d="M0,-26 L0,10" />

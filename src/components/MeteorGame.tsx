@@ -3,6 +3,7 @@ import '../styles/mini-game.css';
 import { samplePathYAtX } from './game/shared/paths';
 import { GRAVITY, MOVE_ACCEL, MAX_SPEED_X, JUMP_SPEED, FRICTION_AIR, FRICTION_GROUND, clampDt } from './game/shared/physics';
 import GameOverlay from './GameOverlay';
+import desertSunAudio from '../assets/desert-sun-164212.mp3';
 
 type Vec2 = { x: number; y: number };
 
@@ -22,9 +23,17 @@ type Player = {
 
 type Meteor = { id: number; pos: Vec2; vel: Vec2; radius: number; active: boolean };
 type Explosion = { id: number; pos: Vec2; life: number; maxLife: number; radius: number };
+type Dinosaur = { id: number; x: number; y: number; speed: number; active: boolean; warningUntil: number; spawnTime: number; ridgeIndex: number };
 
 const VIEW_W = 1200;
 const VIEW_H = 600;
+
+// Dinosaur constants
+const DINOSAUR_SPAWN_INTERVAL = 5; // Changed to 5 seconds for testing
+const DINOSAUR_WARNING_DURATION = 3;
+const DINOSAUR_SPEED = 250;
+const DINOSAUR_DAMAGE = 1.5;
+const DINOSAUR_COLLISION_RADIUS = 30;
 
 function useRaf(callback: (dt: number, tSec: number) => void) {
   const lastRef = useRef<number | null>(null);
@@ -65,6 +74,7 @@ export default function MeteorGame() {
 
   const [meteors, setMeteors] = useState<Meteor[]>([]);
   const [explosions, setExplosions] = useState<Explosion[]>([]);
+  const [dinosaurs, setDinosaurs] = useState<Dinosaur[]>([]);
   const [started, setStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [timeSurvived, setTimeSurvived] = useState(0);
@@ -72,6 +82,13 @@ export default function MeteorGame() {
   const [toasts, setToasts] = useState<{ id: number; player: number; text: string; life: number; maxLife: number }[]>([]);
   const nextId = useRef(1);
   const spawnTimer = useRef(0);
+  const dinosaurNextId = useRef(1);
+  const dinosaurSpawnTimer = useRef(0);
+  const nextRidgeIndex = useRef(0); // Track which ridge to use next (0, 1, or 2)
+  const [showMenu, setShowMenu] = useState(false);
+  const [volume, setVolume] = useState(0.15);
+  const [musicEnabled, setMusicEnabled] = useState(true);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
   const caches = useMemo(() => [new Map<number, number>(), new Map<number, number>(), new Map<number, number>()], []);
 
@@ -119,13 +136,49 @@ export default function MeteorGame() {
   const treeX = 200; // top-left hill area (more dangerous)
   const treeY = 470; // higher on the hill
   const appleCooldownUntil = useRef(0);
+  const appleDropInterval = useRef(30); // Auto-drop every 30 seconds
   const [apple, setApple] = useState<{ x: number; y: number; vy: number } | null>(null);
+  
+  // Audio setup
+  useEffect(() => {
+    if (!audioElementRef.current) {
+      const audio = new Audio(desertSunAudio);
+      audio.loop = true;
+      audio.volume = volume;
+      audioElementRef.current = audio;
+    }
+    return () => {
+      if (audioElementRef.current) {
+        audioElementRef.current.pause();
+        audioElementRef.current = null;
+      }
+    };
+  }, []);
+  
+  useEffect(() => {
+    if (audioElementRef.current) {
+      audioElementRef.current.volume = volume;
+    }
+  }, [volume]);
+  
+  useEffect(() => {
+    if (audioElementRef.current && started && !gameOver) {
+      if (musicEnabled) {
+        audioElementRef.current.play().catch(() => {});
+      } else {
+        audioElementRef.current.pause();
+      }
+    } else if (audioElementRef.current) {
+      audioElementRef.current.pause();
+    }
+  }, [musicEnabled, started, gameOver]);
 
   useRaf((dt, tSec) => {
     const r1 = ridge1Ref.current, r2 = ridge2Ref.current, r3 = ridge3Ref.current;
     if (!r1 || !r2 || !r3) return;
     if (!started || gameOver) return; // pause game until started or after over
     setTimeSurvived(tSec);
+    currentTimeRef.current = tSec;
 
     // Spawn meteors
     spawnTimer.current -= dt;
@@ -141,13 +194,55 @@ export default function MeteorGame() {
       ]);
     }
 
-    // Shake tree to drop apple (E near tree, 60s cooldown)
-    if (leftKeys.current.e || rightKeys.current.e) {
-      const nearAny = playersRef.current.some((pl) => pl.grounded && Math.abs(pl.pos.x - treeX) < 28);
-      if (nearAny && tSec >= appleCooldownUntil.current && !apple) {
-        appleCooldownUntil.current = tSec + 60;
-        setApple({ x: treeX, y: treeY - 12, vy: -40 });
+    // Spawn dinosaurs every 5 seconds (testing) - can spawn 1 or 2 at a time
+    dinosaurSpawnTimer.current += dt;
+    if (dinosaurSpawnTimer.current >= DINOSAUR_SPAWN_INTERVAL) {
+      dinosaurSpawnTimer.current = 0;
+      const spawnTime = tSec;
+      const warningUntil = spawnTime + DINOSAUR_WARNING_DURATION;
+      
+      // Randomly spawn 1 or 2 dinosaurs
+      const spawnCount = Math.random() < 0.5 ? 1 : 2;
+      const newDinosaurs: Dinosaur[] = [];
+      
+      // Track which ridges we're using to avoid duplicates when spawning 2
+      const usedRidges = new Set<number>();
+      
+      for (let i = 0; i < spawnCount; i++) {
+        // Select a ridge that hasn't been used yet
+        let ridgeIndex: number;
+        if (usedRidges.size < 3) {
+          // Try to pick an unused ridge
+          const availableRidges = [0, 1, 2].filter(r => !usedRidges.has(r));
+          ridgeIndex = availableRidges[Math.floor(Math.random() * availableRidges.length)];
+        } else {
+          // All ridges used, just cycle through
+          ridgeIndex = nextRidgeIndex.current;
+          nextRidgeIndex.current = (nextRidgeIndex.current + 1) % 3;
+        }
+        
+        usedRidges.add(ridgeIndex);
+        nextRidgeIndex.current = (ridgeIndex + 1) % 3; // Advance for next spawn
+        
+        newDinosaurs.push({
+          id: dinosaurNextId.current++,
+          x: VIEW_W + 50,
+          y: 0,
+          speed: DINOSAUR_SPEED,
+          active: true,
+          warningUntil,
+          spawnTime,
+          ridgeIndex,
+        });
       }
+      
+      setDinosaurs((prev) => [...prev, ...newDinosaurs]);
+    }
+
+    // Auto-drop apple every 30 seconds
+    if (tSec >= appleCooldownUntil.current && !apple) {
+      appleCooldownUntil.current = tSec + appleDropInterval.current;
+      setApple({ x: treeX, y: treeY - 12, vy: -40 });
     }
 
     // Update players
@@ -300,6 +395,85 @@ export default function MeteorGame() {
       return active;
     });
 
+    // Update dinosaurs
+    setDinosaurs((prev) => {
+      const ridgeRefs = [ridge1Ref.current, ridge2Ref.current, ridge3Ref.current];
+      
+      const updated = prev.map((dino) => {
+        if (!dino.active) return dino;
+        
+        // Calculate Y position on the assigned ridge
+        const ridgeRef = ridgeRefs[dino.ridgeIndex];
+        if (ridgeRef) {
+          const dinoY = samplePathYAtX(ridgeRef, dino.x, caches[dino.ridgeIndex]);
+          if (dinoY != null) {
+            dino.y = dinoY - 20; // Offset slightly above the ridge for visual
+          }
+        }
+        
+        // Only move after warning period
+        if (tSec >= dino.warningUntil) {
+          dino.x -= dino.speed * dt;
+        }
+        
+        // Deactivate if off screen
+        if (dino.x < -100) {
+          dino.active = false;
+        }
+        
+        return dino;
+      });
+      
+      // Check collisions with players
+      updated.forEach((dino) => {
+        if (!dino.active || tSec < dino.warningUntil) return;
+        
+        setPlayers((prevP) => {
+          return prevP.map((pl, pi) => {
+            if (pl.lives <= 0 || tSec < pl.invulnUntil) return pl;
+            
+            // Check if player is on the same ridge as the dinosaur
+            const ridgeRef = ridgeRefs[dino.ridgeIndex];
+            if (!ridgeRef) return pl;
+            
+            const playerYOnRidge = samplePathYAtX(ridgeRef, pl.pos.x, caches[dino.ridgeIndex]);
+            const isOnRidge = playerYOnRidge != null && 
+              Math.abs(pl.pos.y - playerYOnRidge) < 10; // Player is on this ridge
+            
+            if (isOnRidge) {
+              // Check horizontal collision
+              const dx = pl.pos.x - dino.x;
+              
+              if (Math.abs(dx) < DINOSAUR_COLLISION_RADIUS) {
+                // Collision! Deal damage
+                const newLives = Math.max(0, pl.lives - DINOSAUR_DAMAGE);
+                setToasts((ts) => [
+                  ...ts,
+                  {
+                    id: nextId.current++,
+                    player: pi,
+                    text: 'Dino Hit -1.5❤',
+                    life: 0,
+                    maxLife: 1.0,
+                  },
+                ]);
+                return {
+                  ...pl,
+                  lives: newLives,
+                  invulnUntil: tSec + 1.5, // Invulnerability period
+                  deathAt: newLives <= 0 ? tSec : pl.deathAt,
+                  streak: 0, // Reset streak on damage
+                };
+              }
+            }
+            return pl;
+          });
+        });
+      });
+      
+      return updated.filter((d) => d.active);
+    });
+
     // Check game over
     setPlayers((prevP) => {
       const allDead = prevP.every((p) => p.lives <= 0);
@@ -309,6 +483,7 @@ export default function MeteorGame() {
   });
 
   const idlePhase = useRef(0);
+  const currentTimeRef = useRef(0);
   useRaf((dt) => { idlePhase.current += dt; });
   // advance and cleanup toasts
   useRaf((dt) => {
@@ -317,10 +492,54 @@ export default function MeteorGame() {
 
   return (
     <div className="relative w-full h-full">
+      {/* User Menu (top-left) */}
+      <div className="absolute top-2 left-3 z-30">
+        <button
+          type="button"
+          className="glass-card rounded-md px-3 py-1 text-sm text-[color:var(--text)]"
+          onClick={() => setShowMenu((v) => !v)}
+        >Menu</button>
+        {showMenu && (
+          <div className="mt-2 glass-card rounded-md p-3 w-64 text-[color:var(--text)]">
+            <div className="text-sm mb-3">
+              <div className="mb-1">Music: {musicEnabled ? 'On' : 'Off'}</div>
+              <button
+                type="button"
+                className="px-3 py-1 bg-[color:var(--link)]/20 text-[color:var(--link)] rounded-md hover:bg-[color:var(--link)]/30 mb-2"
+                onClick={() => setMusicEnabled((v) => !v)}
+              >
+                {musicEnabled ? 'Turn Off' : 'Turn On'}
+              </button>
+              <div className="mb-1">Volume</div>
+              <input type="range" min={0} max={1} step={0.01} value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} className="w-full" />
+              <div className="mt-2 text-xs text-[color:var(--muted-foreground)]">
+                Music by{' '}
+                <a 
+                  href="https://pixabay.com/users/drmseq-3141130/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=164212" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[color:var(--text)]"
+                >
+                  drmseq
+                </a>
+                {' '}from{' '}
+                <a 
+                  href="https://pixabay.com/sound-effects/desert-sun-164212/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[color:var(--text)]"
+                >
+                  Pixabay
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
       {/* Per-player scores top-left (P1) and top-right (P2) */}
       {started && !gameOver && (
         <>
-          <div className="absolute top-2 left-3 z-20 glass-card rounded-md px-3 py-1 text-sm text-[color:var(--text)]">P1: {players[0]?.score ?? 0}</div>
+          <div className="absolute top-2 left-24 z-20 glass-card rounded-md px-3 py-1 text-sm text-[color:var(--text)]">P1: {players[0]?.score ?? 0}</div>
           <div className="absolute top-2 right-3 z-20 glass-card rounded-md px-3 py-1 text-sm text-[color:var(--text)]">P2: {players[1]?.score ?? 0}</div>
         </>
       )}
@@ -390,6 +609,78 @@ export default function MeteorGame() {
             const alpha = 1 - t;
             return (
               <circle key={e.id} cx={e.pos.x} cy={e.pos.y} r={r} strokeWidth={2} strokeOpacity={alpha} />
+            );
+          })}
+        </g>
+
+        {/* Warning indicators for incoming dinosaurs */}
+        <g className="dinosaur-warnings">
+          {dinosaurs.map((dino) => {
+            const currentTime = currentTimeRef.current;
+            if (currentTime >= dino.warningUntil) return null; // No warning after it appears
+            
+            const ridgeRefs = [ridge1Ref.current, ridge2Ref.current, ridge3Ref.current];
+            const ridgeRef = ridgeRefs[dino.ridgeIndex];
+            if (!ridgeRef) return null;
+            
+            const warningY = samplePathYAtX(ridgeRef, VIEW_W / 2, caches[dino.ridgeIndex]); // Center of screen
+            if (warningY == null) return null;
+            
+            const warningProgress = (currentTime - dino.spawnTime) / DINOSAUR_WARNING_DURATION;
+            const pulse = Math.sin(warningProgress * Math.PI * 10) * 0.5 + 0.5;
+            
+            return (
+              <g key={`warning-${dino.id}`}>
+                {/* Warning flash effect */}
+                <rect
+                  x={VIEW_W / 2 - 200}
+                  y={warningY - 50}
+                  width={400}
+                  height={50}
+                  fill="#ff4444"
+                  opacity={pulse * 0.3}
+                  rx={5}
+                />
+                {/* Warning text */}
+                <text
+                  x={VIEW_W / 2}
+                  y={warningY - 20}
+                  textAnchor="middle"
+                  fontSize="24"
+                  fill="#ff4444"
+                  fontWeight="bold"
+                  opacity={pulse}
+                >
+                  ⚠ DINOSAUR INCOMING! ⚠
+                </text>
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Dinosaurs */}
+        <g className="dinosaurs">
+          {dinosaurs.map((dino) => {
+            const currentTime = currentTimeRef.current;
+            if (currentTime < dino.warningUntil || !dino.active) return null;
+            
+            // SVG viewBox is 0 0 800 600.7, path is in that coordinate space
+            // Scale down to ~60px height, flip horizontally to face left
+            const scale = 0.1; // Scale from 800px width to ~80px
+            const centerX = 400; // Center of SVG viewBox
+            
+            return (
+              <g
+                key={dino.id}
+                transform={`translate(${dino.x}, ${dino.y}) scale(-${scale}, ${scale}) translate(-${centerX}, 0)`}
+                opacity={0.9}
+              >
+                {/* Dinosaur SVG path - flipped horizontally to face left */}
+                <path
+                  d="M560.99,133.34c1.13,.91,2.43,1.68,3.37,2.76,2.17,2.5,4.66,2.04,7.45,1.45,2.95-.62,2.21-2.86,2.72-4.7,.41-1.45,1.41-2.73,2.14-4.09,1.15,1.02,2.68,1.83,3.36,3.1,1.51,2.83,3.88,2.7,6.31,2.27,2.54-.45,3.48-2.32,3.43-4.78-.01-.68-.12-1.42,.09-2.03,.34-.96,.91-1.83,1.39-2.73,.89,.47,1.84,.84,2.63,1.44,.52,.38,.86,1.05,1.18,1.65,2.01,3.75,5.04,4.46,8.53,2.45,6.11-3.52,11.42-2.32,16.93,1.6,8.7,6.19,18.62,6.36,28.52,4.01,11.47-2.72,22.68-1.26,33.85,1.16,9.62,2.09,19.35,4.02,28.66,7.12,11.4,3.8,18.89,12.61,24.16,23.02,1.65,3.27,1.29,7.59,1.66,11.45,.08,.82-.6,2.4-1.09,2.47-5.68,.77-4.51,6.08-6.38,9.34-.59,1.03-1.11,2.1-2.15,4.09v-11.25c-2.97,4.06-2.52,9.43-7.32,13.36,.35-4.2,.6-7.2,.84-10.19l-.82-.31c-1.59,3.75-3.18,7.49-4.76,11.24l-1.24-.31v-8.73l-1.09-.56c-1.89,3.58-3.78,7.17-5.67,10.75l-.83-.1-.43-7.44-1.01-.53c-1.74,3.89-3.48,7.78-5.22,11.66l-.92-.25v-7.39c-3.31,.34-3.28,.35-4.3,4.47-.53,2.14-1.19,4.24-2.74,6.28-.45-2.85-.9-5.7-1.43-9.06-5.84,.95-4.12,7.24-7.77,10.32-.31-3.24-.57-6.07-.86-9.14-5.4-.66-3.09,5.56-6.7,6.95-.64-2-1.33-4.15-2.15-6.71-4.71,2.2-3.13,7.62-6.58,11.28v-10.32c-5.64,.58-3.96,6.8-8.08,8.74l-.92-7.53-1.28-.43c-1.29,2.39-2.58,4.79-4.36,8.08-.47-3.13-.8-5.33-1.14-7.53l-1.2-.33c-1.55,2.77-3.1,5.54-4.65,8.31l-.88-.25c.32-2.98,.64-5.96,.98-9.15-10.65-4.48-21.58-5.64-32.95-3.46-6.48,1.24-12.93,.96-19.1-1.87-10.71-4.9-20.79-2.03-30.68,3.07,1.19,0,2.39,.1,3.57-.03,1.2-.12,2.38-.45,3.57-.71,7.83-1.73,15.2-1.15,22.27,3.21,6.22,3.83,13.22,5.03,20.34,3.17,9.29-2.43,15.72,1.23,20.96,8.56,4.54,6.36,9.34,12.55,14.3,19.17,1.96-2.17,3.14-3.47,4.63-5.13,.33,3.06,.58,5.41,.83,7.77l1.16-.03c.98-1.53,1.96-3.06,2.98-4.66,3.26,2.09-2.53,7.05,3.29,7.96,.92-2.51,1.86-5.05,2.8-7.6l1.26,.09,1,10.09,1.35-.04,1.78-5.5,1.12-.38c1,2.49,2,4.98,3.32,8.26,.99-2.37,1.67-3.99,2.54-6.05,1.63,2.68,3.06,5.03,4.5,7.39l1.21-.33c.08-1.87,.17-3.74,.25-5.61l1.03-.32c.85,2.4,1.7,4.8,2.55,7.2l.95,.12c.32-1.1,.72-2.18,.93-3.3,.23-1.25,.27-2.53,.39-3.8l1.1-.22c1.11,3.01,2.22,6.02,3.33,9.03l1.42-.24c.45-2.65,.9-5.31,1.43-8.44,2.42,3.53,1.43,8.67,6.75,10.51v-10l.78-.15c1.58,3.3,3.16,6.61,4.73,9.91l1.07-.13v-10.62c4.81,3.47,2.48,8.22,5.16,11.93v-9.11l1.47-.4c1.18,2.91,2.37,5.81,3.7,9.09,1.02-1.16,1.79-2.02,2.48-2.8,3.08,1.5,6.89,2.57,5.99,7.18-1.15,5.86-2.96,11.56-9.29,13.77-11.38,3.98-22.89,6.38-34.98,2.68-14.77-4.52-29.99-6.26-45.4-5.97-4.99,.09-10.11,.42-14.92,1.64-11.46,2.89-22.56,1.91-33.61-1.72-2.31-.76-4.76-1.17-6.97-2.15-4.78-2.11-8.62-.76-11.3,3.25-3.82,5.72-7.49,11.58-10.66,17.68-3.31,6.35-5.77,13.14-8.93,19.58-4.48,9.12-11.16,16.44-19.97,21.45-9.47,5.38-14.86,13.43-17.77,23.69-2.21,7.77-4.98,15.39-7.62,23.43,3.17,1.14,7.2,2.48,11.14,4.04,9.55,3.79,19.06,7.68,28.58,11.55,.62,.25,1.46,.47,1.75,.97,3.76,6.37,9.76,12.49,10.64,19.26,1.71,13.09-12.39,25.41-26.16,22.12-.93-.22-1.74-.92-2.94-1.59,4.42-.88,8.44-1.21,12.09-2.55,3.73-1.37,6.09-4.58,7.47-8.32-6.47,7.31-17.41,9.16-23.68,3.14,1.92-.16,3.38,0,4.62-.45,3.63-1.27,7.44-2.35,10.68-4.32,2.96-1.81,1.81-9.48-1.28-11.84-3.95-3.02-7.74-6.27-11.82-9.1-1.43-.99-3.51-1.37-5.32-1.46-4.75-.23-9.52-.1-14.28-.18-14.15-.24-20.88-6.44-22.27-20.47-.27-2.7-.59-5.39-.94-8.63-14.22,11.59-29.52,20.41-46.7,25.22-.83,7.22-1.2,14.44-2.54,21.47-3.42,17.89-14.47,28.84-31.85,33.73-9.68,2.72-9.78,2.81-8.55,12.44,.57,4.42,1.51,8.82,2.62,13.14,1.72,6.66,6.27,10.97,12.44,13.62,1.13,.49,2.55,.32,3.84,.43,5.05,.44,10.21,.4,15.14,1.45,4.98,1.05,9.65,3.57,14.62,4.75,11.8,2.8,22.58,24.17,13.99,35.49-5.55-17.51-13.1-24.13-27.31-22.98,11.14,6.24,10.11,14.92,6.02,25.28-.91-2.29-1.78-3.67-1.97-5.14-.92-6.91-5.78-9.66-11.71-10.51-6.13-.88-11.86-2.14-17.02-5.88-3.73-2.7-8.04-1.81-12.13-.4-7.74,2.66-15.24,1.34-22.63-1.38-.9-.33-2.09-1.23-2.19-1.98-.09-.72,.95-1.78,1.74-2.36,5.33-3.87,5.81-5.76,3.99-12.05-3.32-11.42-11.31-19.6-18.92-28.09-1.54-1.72-3.19-3.37-4.53-5.23-3.14-4.38-4.04-9.57-.62-13.65,8.89-10.62,10.52-23.47,12.54-36.68-5.33-1.1-10.74-2.15-16.13-3.33-6.86-1.51-13.7-3.09-20.53-4.74-2.15-.52-3.67-.73-4.88,1.86-5.6,12.01-14.87,20.12-27.17,24.94-3.51,1.38-6.94,3.04-10.23,4.89-4.82,2.71-7.42,6.79-7.61,12.55-.19,5.82-1.02,11.62-1.37,17.44-.22,3.66-.43,7.38,0,11,.38,3.21,.74,8.06,2.73,9.1,4.39,2.31,9.91,3.47,14.73,.17,5.13-3.5,9.84-2.87,14.68,.52,4,2.8,8.14,5.38,12.25,8.02,3.91,2.52,6.14,6.16,6.72,10.68,.58,4.57,.81,9.19,.3,14.18-1.13-2.1-2.23-4.21-3.39-6.29-3.15-5.65-6.53-11.19-13.54-12.51-3.09-.59-6.34-.39-9.49-.54,0,.94-.08,1.36,.01,1.4,11.14,4.74,11.45,15.66,13.92,25.1,1.44,5.49,1.48,11.35,1.47,17.28-5.62-11.19-9.7-23.38-22.51-28.55-5.32-2.15-10.83-3.82-16.52-5.21,6.47,9.89,7.63,20.84,8.47,32.06-.76-1.17-1.46-2.39-2.3-3.5-3.97-5.31-7.76-10.78-12.03-15.83-8.35-9.88-19.12-10.82-30.79-7.58-3.25,.9-6.48,1.93-9.64,3.1-5.86,2.18-11.47,1.06-17.02-1.05-.82-.31-1.49-1.01-2.9-2,1.75-1.09,2.92-2.24,4.3-2.61,6.19-1.67,9.88-5.57,11.98-11.6,1.14-3.26,2.83-6.76,5.31-9.02,5.58-5.08,5.12-11.04,3.66-17.25-.7-2.98-2.01-5.9-3.47-8.61-4.55-8.48-4.6-15.3,2.07-21.95,11.37-11.34,17.4-24.92,19.94-40.48,.69-4.23,2.42-8.28,4.04-13.6-6.23,0-12.11-.21-17.97,.04-26.7,1.11-51.14,9.75-74.23,22.68-39.58,22.16-71.95,52.08-96.69,90.18-2.26,3.47-4.86,6.72-7.3,10.07-.45-.16-.9-.32-1.35-.49,.34-1.99,.49-4.04,1.07-5.96,6.19-20.56,16.3-39.25,27.86-57.19,19.95-30.96,44.63-57.8,72.01-82.3,21.21-18.98,44.49-35.22,67.32-52.09,6.74-4.98,12.68-11.05,18.97-16.64,1.74-1.55,2.51-3.15,1.61-5.73-1.12-3.21,1.64-6.01,4.85-5.46,4,.69,6.37-1.93,5.43-6.02-.42-1.84-1.18-3.65-1.31-5.51-.24-3.42,1.4-6.02,4.36-7.7,2.7-1.54,4.48,.4,6.58,1.68,1.41,.86,4.26,1.83,4.74,1.26,1.35-1.57,2.19-3.85,2.5-5.95,.35-2.32-.65-4.91-.08-7.13,1.25-4.88,5.05-5.82,8.92-2.58,1.83,1.54,3.39,3.58,6.33,2.38,2.91-1.18,4.41-3.05,3.71-6.28-.26-1.19-.97-2.46-.73-3.53,.47-2.05,1.48-3.98,2.26-5.97,1.87,.75,3.8,1.4,5.59,2.3,.8,.4,1.23,1.64,2.04,1.93,1.76,.64,4.06,1.74,5.37,1.09,1.29-.63,2.03-3.14,2.29-4.93,.37-2.51-.44-5.24,.21-7.63,.48-1.78,2.46-3.15,3.77-4.71,1.32,1.3,2.87,2.43,3.89,3.93,1.12,1.65,1.57,3.76,2.64,5.45,1.83,2.86,4.17,2.73,5.34-.44,.93-2.5,.88-5.35,1.75-7.88,.88-2.55,2.35-4.9,3.56-7.34,1.94,1.84,3.99,3.58,5.79,5.55,.88,.97,1.26,2.38,1.93,3.56,2.12,3.74,4.52,3.91,6.3-.02,1.6-3.52,2.27-7.46,3.34-11.22,.29-1.04,.26-2.3,.87-3.09,1-1.31,2.3-3.09,3.64-3.24,1.27-.14,3.22,1.24,4.04,2.49,2.29,3.51,3.99,7.4,6.27,10.92,1,1.54,3.24,3.81,4.23,3.5,1.86-.57,3.83-2.5,4.66-4.36,1.54-3.42,2.07-7.28,3.49-10.77,.67-1.64,2.39-3.89,3.72-3.95,1.43-.07,3.6,1.8,4.35,3.35,1.99,4.13,3.26,8.6,5.11,12.8,.64,1.46,2.15,2.54,3.27,3.79,1.22-1.35,2.87-2.51,3.57-4.09,1.42-3.19,2.11-6.71,3.53-9.9,.56-1.26,2.27-2.79,3.45-2.78,1.18,0,2.94,1.54,3.43,2.81,1.75,4.53,2.89,9.3,4.65,13.82,.81,2.09,2.53,3.82,3.84,5.71,1.41-1.72,3.18-3.26,4.14-5.21,1.49-3.02,2.23-6.39,3.67-9.44,.67-1.43,2.23-2.44,3.38-3.65,1.19,1.21,2.88,2.21,3.48,3.66,2.16,5.25,3.82,10.71,5.94,15.98,1.04,2.59,1.39,6.86,5.12,6.11,1.71-.34,3.05-4.18,3.93-6.66,1.12-3.17,1.45-6.61,2.41-9.84,1.47-4.95,4.14-5.62,7.31-1.64,2.95,3.7,5.2,7.95,8.12,11.68,1.3,1.65,3.48,2.61,5.27,3.88,1.04-1.91,2.53-3.72,3-5.76,.66-2.88,.32-5.97,.85-8.89,.34-1.86,1.48-3.57,2.26-5.34,1.64,.97,3.52,1.68,4.85,2.97,1.73,1.68,2.8,4.07,4.59,5.66,1.11,.98,3.65,1.87,4.45,1.29,1.22-.89,2.09-3.1,2.05-4.72-.06-2.52-1.33-4.99-1.49-7.52-.1-1.68,.35-3.95,1.46-4.97,.81-.75,3.26-.31,4.68,.3,2.53,1.09,4.74,3.73,7.68,1.16,3.09-2.7,2.49-5.99,1.21-9.35-.48-1.25-.92-2.57-1.07-3.89-.41-3.65,1.26-4.95,4.81-3.86,.77,.24,1.51,.61,2.3,.78,3.85,.82,5.85-1.34,4.56-5.04-.66-1.91-1.76-3.66-2.48-5.55-1.01-2.65-.12-3.94,2.83-3.43,.67,.11,1.35,.13,2.02,.24,6,.94,7.89-1.3,5.87-6.96-.27-.76-.63-1.51-.8-2.3-.74-3.37,.66-4.58,4.02-3.5,.51,.17,1.03,.36,1.5,.63,2.09,1.19,4.63,2.42,6.13-.01,.97-1.57,.41-4.14,.38-6.26-.02-1.67-.29-3.33-.44-5,1.66,.18,3.35,.23,4.97,.6,1.3,.3,2.47,1.24,3.76,1.44,2.78,.44,4.46-.77,4.44-3.78,0-.4-.17-.8-.21-1.2q-.79-7.66,6.31-5.07c3.27,1.2,5.86-.64,6.01-4.17,.11-2.47,.37-4.94,.56-7.41l1.41-.38Zm63.99,20.71c-.49,3.03,.08,5.42,3.03,6.23,.57,.16,2.47-1.77,2.44-2.7-.1-3.11-1.96-4.47-5.47-3.53Z"
+                  fill="var(--text)"
+                />
+              </g>
             );
           })}
         </g>
@@ -469,6 +760,7 @@ export default function MeteorGame() {
               // reset state
               setMeteors([]);
               setExplosions([]);
+              setDinosaurs([]);
               setPlayers([
                 { pos: { x: 250, y: 515 }, vel: { x: 0, y: 0 }, grounded: false, facing: 1, dropUntil: 0, lives: 3, invulnUntil: 0, score: 0, streak: 0 },
                 { pos: { x: 950, y: 525 }, vel: { x: 0, y: 0 }, grounded: false, facing: -1, dropUntil: 0, lives: 3, invulnUntil: 0, score: 0, streak: 0 },
@@ -477,6 +769,9 @@ export default function MeteorGame() {
               setSurvivedCount(0);
               setGameOver(false);
               setStarted(true);
+              dinosaurSpawnTimer.current = 0;
+              currentTimeRef.current = 0;
+              nextRidgeIndex.current = 0;
             }}
           />
         );
