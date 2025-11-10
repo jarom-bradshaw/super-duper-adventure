@@ -60,7 +60,7 @@ export default function TelescopeGame() {
   const ridge2Ref = useRef<SVGPathElement>(null);
   const ridge3Ref = useRef<SVGPathElement>(null);
 
-  const keys = useRef({ left: false, right: false, up: false, down: false, enter: false });
+  const keys = useRef({ left: false, right: false, up: false, down: false, enter: false, e: false });
 
   const [player, setPlayer] = useState<Player>({ pos: { x: 250, y: 515 }, vel: { x: 0, y: 0 }, grounded: false, facing: 1, dropUntil: 0 });
   const playerRef = useRef(player);
@@ -234,16 +234,37 @@ export default function TelescopeGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent, down: boolean) => {
-      if (['Enter', 'Escape', 'w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key)) e.preventDefault();
+      if (['Enter', 'Escape', 'w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'e', 'E'].includes(e.key)) e.preventDefault();
       if (e.key === 'a' || e.key === 'ArrowLeft') keys.current.left = down;
       if (e.key === 'd' || e.key === 'ArrowRight') keys.current.right = down;
       if (e.key === 'w' || e.key === 'ArrowUp') keys.current.up = down;
       if (e.key === 's' || e.key === 'ArrowDown') keys.current.down = down;
-      if (e.key === 'Enter') keys.current.enter = down;
-      // Toggle jar / pitcher / seeds / shake trees / hourglass on E
-      if (down && (e.key === 'e' || e.key === 'E') && !overlayOpen && !arcadeOpen) {
+      // Make E and Enter interchangeable
+      if (e.key === 'Enter' || e.key === 'e' || e.key === 'E') {
+        keys.current.enter = down;
+        keys.current.e = down;
+      }
+      // Handle E or Enter key - check telescope/arcade first, then other interactions
+      if (down && (e.key === 'e' || e.key === 'E' || e.key === 'Enter') && !overlayOpen && !arcadeOpen) {
         const px = playerRef.current.pos.x;
         const grounded = playerRef.current.grounded;
+        
+        // Check telescope first (right side near x ~ 1040)
+        const nearTelescope = Math.abs(px - 1040) < 18 && grounded;
+        if (nearTelescope) {
+          setOverlayOpen(true);
+          setFocused(false);
+          return;
+        }
+        
+        // Check arcade cabinet (left side near x ~ 100)
+        const nearCabinet = Math.abs(px - 100) < 30 && grounded;
+        if (nearCabinet) {
+          setArcadeOpen(true);
+          setActiveGame('pong');
+          return;
+        }
+        
         // prioritize table items when close
         const nearJar = Math.abs(px - 1130) < 30 && grounded;
         const nearPitcher = Math.abs(px - 1100) < 30 && grounded;
@@ -282,16 +303,6 @@ export default function TelescopeGame() {
             if (challengeUntil && performance.now() < challengeUntil) setChallengeShaken((c) => Math.max(c, 1));
           }
         }
-      }
-      // Open overlay when near telescope on Enter
-      if (down && e.key === 'Enter' && !overlayOpen) {
-        const near = Math.abs(playerRef.current.pos.x - telescopeX) < 30 && playerRef.current.grounded;
-        if (near) { setOverlayOpen(true); setFocused(false); }
-      }
-      // Open arcade when near cabinet on Enter
-      if (down && e.key === 'Enter' && !arcadeOpen) {
-        const nearCab = Math.abs(playerRef.current.pos.x - 100) < 40 && playerRef.current.grounded;
-        if (nearCab) { setArcadeOpen(true); setActiveGame('pong'); }
       }
       if (overlayOpen) {
         const step = 20;
@@ -588,27 +599,13 @@ export default function TelescopeGame() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [pitcherHeld, seedsHeld, hourglassHeld, seedsRemaining, challengeUntil, overlayOpen, arcadeOpen]);
 
-  // telescope hotspot (right side near x ~ 1040)
-  const telescopeX = 1040;
-  const nearTelescope = Math.abs(player.pos.x - telescopeX) < 18 && player.grounded;
-  // arcade cabinet hotspot (left side)
-  const cabinetX = 100;
-  const nearCabinet = Math.abs(player.pos.x - cabinetX) < 30 && player.grounded;
-  useEffect(() => {
-    if (!overlayOpen && nearTelescope && keys.current.enter) {
-      setOverlayOpen(true);
-      setFocused(false);
-    }
-  }, [nearTelescope, overlayOpen]);
-  useEffect(() => {
-    if (!arcadeOpen && nearCabinet && keys.current.enter) {
-      setArcadeOpen(true);
-      setActiveGame('pong');
-    }
-  }, [nearCabinet, arcadeOpen]);
 
   const idlePhase = useRef(0);
   useRaf((dt) => { idlePhase.current += dt; });
+
+  // Calculate proximity to telescope and arcade cabinet for UI hints
+  const nearTelescope = Math.abs(player.pos.x - 1040) < 18 && player.grounded;
+  const nearCabinet = Math.abs(player.pos.x - 100) < 30 && player.grounded;
 
   return (
     <div className="relative w-full h-full">
