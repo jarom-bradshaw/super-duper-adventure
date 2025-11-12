@@ -1,6 +1,9 @@
 import Section from '../components/Section';
 import ImageCarousel from '../components/ImageCarousel';
+import PDFViewer from '../components/PDFViewer';
 import upliftLink from '../assets/uplift_link/Screenshot 2025-11-12 002751.png?url';
+import usuAnalysisPdf from '../assets/usu-hackathon/Copy of USU Football Analysis.pdf?url';
+import usuSummaryPdf from '../assets/usu-hackathon/Copy of Hack USU 2025 - Sports Analytics Executive Summary.docx.pdf?url';
 
 const Competitions = () => {
   return (
@@ -29,6 +32,15 @@ const Competitions = () => {
                 <p className="text-gray-400 mb-2">
                   <strong>USU Hackathon - 19 Hours | March 2025</strong>
                 </p>
+                <div className="mb-4">
+                  <PDFViewer
+                    pdfs={[
+                      { url: usuAnalysisPdf, label: 'USU Football Analysis' },
+                      { url: usuSummaryPdf, label: 'Executive Summary' },
+                    ]}
+                    alt="USU Football Analysis PDFs"
+                  />
+                </div>
                 <p className="text-gray-300 mb-4">
                   A data analysis hackathon project focused on improving college football offensive strategies:
                 </p>

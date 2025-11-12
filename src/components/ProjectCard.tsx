@@ -1,4 +1,5 @@
 import { Project } from '../types';
+import ImageCarousel from './ImageCarousel';
 
 interface ProjectCardProps {
   project: Project;
@@ -7,6 +8,10 @@ interface ProjectCardProps {
 const ProjectCard = ({ project }: ProjectCardProps) => {
   return (
     <div className="glass-card glass-card-hover rounded-lg p-6 group">
+      {project.images && project.images.length > 0 && (
+        <ImageCarousel images={project.images} alt={`${project.title} screenshot`} />
+      )}
+
       <div className="mb-4">
         <h3 className="text-2xl font-bold text-[color:var(--link)] mb-2">{project.title}</h3>
         {project.date && (
