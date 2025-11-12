@@ -97,6 +97,25 @@
   border-radius: 4px;
 }
 
+.header__nav-link--space-between {
+  justify-content: space-between;
+}
+
+.header__theme-toggle-button {
+  min-width: 8.5rem;
+}
+
+.header__theme-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.header__theme-toggle-text {
+  white-space: nowrap;
+}
+
 .header__nav-link:hover {
   color: var(--link);
 }
@@ -249,5 +268,77 @@
 
 .skip-to-content:focus {
   top: 0;
+}
+
+/* Theme Toggle Styles */
+.header__theme-toggle-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.header__theme-color-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--glass-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.header__theme-dropdown-arrow {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.header__theme-dropdown-arrow--open {
+  transform: rotate(180deg);
+}
+
+.header__theme-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: 12rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 4px;
+  z-index: 50;
+}
+
+.header__theme-dropdown-item {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.header__theme-dropdown-item:hover {
+  background: color-mix(in srgb, var(--link) 10%, transparent);
+}
+
+.header__theme-dropdown-item--active {
+  background: color-mix(in srgb, var(--link) 15%, transparent);
+  color: var(--text);
+}
+
+.header__theme-dropdown-item:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
 }
 

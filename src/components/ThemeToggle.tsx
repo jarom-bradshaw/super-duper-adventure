@@ -45,7 +45,7 @@ const ThemeToggle = () => {
       aria-pressed={isStars}
       aria-label="Toggle theme"
       onClick={toggle}
-      className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-[color:var(--glass-border)] bg-[color:var(--glass-bg)] text-[color:var(--text)]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--link)] transition"
+      className="header__nav-link"
     >
       <span className="sr-only">Toggle theme</span>
       <span aria-hidden>{isStars ? '🌟' : '☄️'}</span>

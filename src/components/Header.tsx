@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import ColorThemeToggle from './ColorThemeToggle';
 import '../styles/header.css';
 
 const Header = () => {
@@ -14,6 +15,7 @@ const Header = () => {
     { path: '/full-stack', label: 'Full Stack' },
     { path: '/mobile', label: 'Mobile' },
     { path: '/games', label: 'Games' },
+    { path: '/competitions', label: 'Competitions' },
     { path: '/extensions', label: 'Extensions' },
     { path: '/mini-game', label: 'Mini Game' },
     { path: '/referrals', label: 'Referrals' },
@@ -89,8 +91,13 @@ const Header = () => {
                   </Link>
                 </li>
               ))}
+              <li className="header__nav-item">
+                <ColorThemeToggle />
+              </li>
+              <li className="header__nav-item">
+                <ThemeToggle />
+              </li>
             </ul>
-            <ThemeToggle />
           </div>
         </nav>
       </header>
