@@ -28,7 +28,7 @@ const PDFViewer = ({ pdfs, alt = 'PDF document' }: PDFViewerProps) => {
           <button
             className="w-full rounded-lg bg-[color:var(--muted)]/20 hover:bg-[color:var(--muted)]/30 transition-colors p-3 flex items-center gap-3 text-left"
             onClick={() => handleToggle(index)}
-            aria-label={`${expandedIndex === index ? 'Collapse' : 'Expand'} ${pdf.label}`}
+            aria-label={`${expandedIndex === index ? 'Collapse' : 'Expand'} ${alt}: ${pdf.label}`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -56,6 +56,7 @@ const PDFViewer = ({ pdfs, alt = 'PDF document' }: PDFViewerProps) => {
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
+            <span className="sr-only">{alt}</span>
           </button>
 
           {expandedIndex === index && (
@@ -82,8 +83,8 @@ const PDFViewer = ({ pdfs, alt = 'PDF document' }: PDFViewerProps) => {
                 <iframe
                   src={pdf.url}
                   className="w-full h-full border-0"
-                  title={pdf.label}
-                  aria-label={pdf.label}
+                  title={`${alt}: ${pdf.label}`}
+                  aria-label={`${alt}: ${pdf.label}`}
                 />
               </div>
             </div>

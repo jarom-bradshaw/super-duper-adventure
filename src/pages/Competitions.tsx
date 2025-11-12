@@ -38,7 +38,7 @@ const Competitions = () => {
                       { url: usuAnalysisPdf, label: 'USU Football Analysis' },
                       { url: usuSummaryPdf, label: 'Executive Summary' },
                     ]}
-                    alt="USU Football Analysis PDFs"
+                    alt="USU Hackathon document"
                   />
                 </div>
                 <p className="text-gray-300 mb-4">
