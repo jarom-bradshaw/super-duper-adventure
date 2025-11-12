@@ -1,5 +1,39 @@
 import { Project } from '../types';
 
+// Import images
+import codeChart1 from '../assets/codech-art-images/Screenshot 2025-11-12 000713.png?url';
+import codeChart2 from '../assets/codech-art-images/Screenshot 2025-11-12 000723.png?url';
+import codeChart3 from '../assets/codech-art-images/Screenshot 2025-11-12 000921.png?url';
+import codeChart4 from '../assets/codech-art-images/Screenshot 2025-11-12 000940.png?url';
+import codeChart5 from '../assets/codech-art-images/Screenshot 2025-11-12 000956.png?url';
+
+import finbuddy1 from '../assets/finbuddy/Screenshot 2025-07-05 215151.png?url';
+import finbuddy2 from '../assets/finbuddy/Screenshot 2025-07-08 183535.png?url';
+import finbuddy3 from '../assets/finbuddy/Screenshot 2025-07-08 183630.png?url';
+import finbuddy4 from '../assets/finbuddy/Screenshot 2025-07-09 194740.png?url';
+
+import floraId1 from '../assets/flora-id-images/Screenshot 2025-11-12 000513.png?url';
+import floraId2 from '../assets/flora-id-images/Screenshot 2025-11-12 000529.png?url';
+import floraId3 from '../assets/flora-id-images/Screenshot 2025-11-12 000557.png?url';
+import floraId4 from '../assets/flora-id-images/Screenshot 2025-11-12 000614.png?url';
+import floraId5 from '../assets/flora-id-images/Screenshot 2025-11-12 000640.png?url';
+import floraId6 from '../assets/flora-id-images/Screenshot 2025-11-12 000701.png?url';
+
+import linkedInExt from '../assets/linked-in-ext/Screenshot 2025-05-09 181415.png?url';
+
+import minesweeper1 from '../assets/3d-minesweeper/Screenshot 2025-05-18 201159.png?url';
+import minesweeper2 from '../assets/3d-minesweeper/Screenshot 2025-05-18 203136.png?url';
+import minesweeper3 from '../assets/3d-minesweeper/Screenshot 2025-05-18 203836.png?url';
+import minesweeper4 from '../assets/3d-minesweeper/Screenshot 2025-05-18 205521.png?url';
+import minesweeper5 from '../assets/3d-minesweeper/Screenshot 2025-05-18 205948.png?url';
+import minesweeper6 from '../assets/3d-minesweeper/Screenshot 2025-05-18 213031.png?url';
+import minesweeper7 from '../assets/3d-minesweeper/Screenshot 2025-06-24 091534.png?url';
+
+import upliftLink from '../assets/uplift_link/Screenshot 2025-11-12 002751.png?url';
+import starryMeteor1 from '../assets/starry_night_meteor/Screenshot 2025-11-12 005210.png?url';
+import starryMeteor2 from '../assets/starry_night_meteor/Screenshot 2025-11-12 005240.png?url';
+import starryMeteor3 from '../assets/starry_night_meteor/Screenshot 2025-11-12 005250.png?url';
+
 export const mlProjects: Project[] = [
   {
     title: 'AI Chatbot for Truck Dispatching',
@@ -137,6 +171,7 @@ export const fullStackProjects: Project[] = [
     ],
     links: [{ label: 'Website', url: 'https://codech.art' }],
     technologies: ['React', 'Web Development'],
+    images: [codeChart1, codeChart2, codeChart3, codeChart4, codeChart5],
   },
   {
     title: 'FinBuddy',
@@ -156,6 +191,7 @@ export const fullStackProjects: Project[] = [
       },
     ],
     technologies: ['Java', 'Spring Boot', 'React', 'Ollama', 'JWT'],
+    images: [finbuddy1, finbuddy2, finbuddy3, finbuddy4],
   },
   {
     title: 'Personal Notes Manager (Cloud Notes Manager)',
@@ -187,6 +223,7 @@ export const fullStackProjects: Project[] = [
     ],
     links: [{ label: 'Website', url: 'https://flora-id.com' }],
     technologies: ['React'],
+    images: [floraId1, floraId2, floraId3, floraId4, floraId5, floraId6],
   },
 ];
 
@@ -203,6 +240,7 @@ export const mobileProjects: Project[] = [
     ],
     links: [{ label: 'MLH Hackathon', url: 'https://mlh.io' }],
     technologies: ['.NET Maui', 'MongoDB'],
+    images: [upliftLink],
   },
 ];
 
@@ -224,6 +262,7 @@ export const extensionProjects: Project[] = [
       },
     ],
     technologies: ['Chrome Extension', 'JavaScript'],
+    images: [linkedInExt],
   },
 ];
 
@@ -244,6 +283,7 @@ export const gameProjects: Project[] = [
       { label: 'Play', url: '/minigame' },
     ],
     technologies: ['React', 'TypeScript', 'SVG', 'Game Development'],
+    images: [starryMeteor1, starryMeteor2, starryMeteor3],
   },
   {
     title: '3D Minesweeper',
@@ -256,6 +296,7 @@ export const gameProjects: Project[] = [
       'Used Godot engine with C# to implement gameplay logic and platform support',
     ],
     technologies: ['Godot', 'C#', '3D Game Development'],
+    images: [minesweeper1, minesweeper2, minesweeper3, minesweeper4, minesweeper5, minesweeper6, minesweeper7],
   },
   {
     title: 'Side-Scrolling Obstacle Course Game (Office Rush)',

@@ -8,6 +8,7 @@ export interface Project {
     url: string;
   }[];
   technologies?: string[];
+  images?: string[];
 }
 
 export interface WorkExperience {

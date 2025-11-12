@@ -4,26 +4,26 @@
   --text: #0b0b0f;
   --muted: #eceae7;
   --muted-foreground: #41434a;
-  --link: #ea580c; /* orange-600 */
-  --accent: #ef4444; /* red-500 */
 
-  /* Meteors (light theme) */
-  --meteor-color: #e25822; /* orange-red */
-  --meteor-glow: rgba(226, 88, 34, 0.6);
-
-  /* Surfaces */
-  --card-bg: rgba(255, 255, 255, 0.75);
-  --card-border: rgba(6, 182, 212, 0.25);
-  --glass-bg: rgba(255, 255, 255, 0.5);
-  --glass-border: rgba(234, 88, 12, 0.3); /* warm orange */
-  --glass-shadow: 0 0 5px rgba(234, 88, 12, 0.3);
-
-  /* Gradient Stops (warm in light) */
+  /* Accent palette (warm default) */
+  --link: #f97316;
+  --accent: #ef4444;
   --gradient-1: #f59e0b;
   --gradient-2: #f97316;
   --gradient-3: #fb923c;
   --gradient-4: #ef4444;
   --gradient-5: #f43f5e;
+
+  /* Meteors */
+  --meteor-color: var(--link);
+  --meteor-glow: color-mix(in srgb, var(--link) 60%, transparent);
+
+  /* Surfaces */
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --card-border: color-mix(in srgb, var(--accent) 18%, transparent);
+  --glass-bg: rgba(255, 255, 255, 0.5);
+  --glass-border: color-mix(in srgb, var(--accent) 30%, transparent);
+  --glass-shadow: 0 0 8px color-mix(in srgb, var(--accent) 30%, transparent);
 
   /* Gray Colors (dark neutral grays in light mode) */
   --gray-300: #6b7280;
@@ -37,26 +37,16 @@
   --text: #e7f6ff;
   --muted: #0f1729;
   --muted-foreground: #c9d5e1;
-  --link: #22d3ee; /* cyan-400 */
-  --accent: #60a5fa; /* blue-400 */
-
-  /* Stars (dark theme) */
-  --meteor-color: #22d3ee; /* cyan */
-  --meteor-glow: rgba(34, 211, 238, 0.6);
 
   /* Surfaces */
   --card-bg: rgba(0, 0, 0, 0.35);
-  --card-border: rgba(34, 211, 238, 0.3);
+  --card-border: color-mix(in srgb, var(--accent) 28%, transparent);
   --glass-bg: rgba(0, 0, 0, 0.2);
-  --glass-border: rgba(34, 211, 238, 0.3);
-  --glass-shadow: 0 0 5px rgba(34, 211, 238, 0.3);
+  --glass-border: color-mix(in srgb, var(--accent) 35%, transparent);
+  --glass-shadow: 0 0 10px color-mix(in srgb, var(--accent) 35%, transparent);
 
-  /* Gradient Stops (cool in dark) */
-  --gradient-1: #22d3ee;
-  --gradient-2: #06b6d4;
-  --gradient-3: #3b82f6;
-  --gradient-4: #6366f1;
-  --gradient-5: #8b5cf6;
+  /* Meteors */
+  --meteor-glow: color-mix(in srgb, var(--link) 55%, transparent);
 
   /* Gray Colors (cool, same as Tailwind defaults in dark mode) */
   --gray-300: #d1d5db;
@@ -64,4 +54,55 @@
   --gray-500: #6b7280;
 }
 
+/* Color palettes */
+:root,
+:root[data-color="warm"] {
+  --link: #f97316;
+  --accent: #ef4444;
+  --gradient-1: #f59e0b;
+  --gradient-2: #f97316;
+  --gradient-3: #fb923c;
+  --gradient-4: #ef4444;
+  --gradient-5: #f43f5e;
+}
+
+:root[data-color="ocean"] {
+  --link: #0ea5e9; /* sky-500 */
+  --accent: #6366f1; /* indigo-500 */
+  --gradient-1: #22d3ee;
+  --gradient-2: #0ea5e9;
+  --gradient-3: #3b82f6;
+  --gradient-4: #6366f1;
+  --gradient-5: #8b5cf6;
+}
+
+:root[data-color="emerald"] {
+  --link: #10b981;
+  --accent: #14b8a6;
+  --gradient-1: #34d399;
+  --gradient-2: #10b981;
+  --gradient-3: #14b8a6;
+  --gradient-4: #0d9488;
+  --gradient-5: #0f766e;
+}
+
+:root[data-color="violet"] {
+  --link: #a855f7;
+  --accent: #ec4899;
+  --gradient-1: #c084fc;
+  --gradient-2: #a855f7;
+  --gradient-3: #d946ef;
+  --gradient-4: #ec4899;
+  --gradient-5: #f472b6;
+}
+
+:root[data-color="gold"] {
+  --link: #f59e0b;
+  --accent: #f97316;
+  --gradient-1: #facc15;
+  --gradient-2: #f59e0b;
+  --gradient-3: #f97316;
+  --gradient-4: #ea580c;
+  --gradient-5: #fb923c;
+}
 
