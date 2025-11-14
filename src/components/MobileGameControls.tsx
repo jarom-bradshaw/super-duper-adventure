@@ -18,7 +18,6 @@ type MobileGameControlsProps = {
 
 export default function MobileGameControls({ controlKeys, showUseButton = false }: MobileGameControlsProps) {
   const [isMobile, setIsMobile] = useState(false);
-  const joystickRef = useRef<HTMLDivElement>(null);
   const joystickStickRef = useRef<HTMLDivElement>(null);
   const joystickBaseRef = useRef<HTMLDivElement>(null);
   const touchIdRef = useRef<number | null>(null);
