@@ -3,6 +3,8 @@ import '../styles/mini-game.css';
 import { samplePathYAtX } from './game/shared/paths';
 import { GRAVITY, MOVE_ACCEL, MAX_SPEED_X, JUMP_SPEED, FRICTION_AIR, FRICTION_GROUND, clampDt } from './game/shared/physics';
 import GameOverlay from './GameOverlay';
+import OrientationWarning from './OrientationWarning';
+import MobileGameControls from './MobileGameControls';
 import desertSunAudio from '../assets/desert-sun-164212.mp3';
 import pterodactylSvg from '../assets/pterodatcyl.svg?url';
 
@@ -89,8 +91,8 @@ export default function MeteorGame() {
   const ridge2Ref = useRef<SVGPathElement>(null);
   const ridge3Ref = useRef<SVGPathElement>(null);
 
-  const leftKeys = useRef({ left: false, right: false, up: false, down: false, e: false, enter: false });
-  const rightKeys = useRef({ left: false, right: false, up: false, down: false, e: false, enter: false });
+  const leftKeys = useRef({ left: false, right: false, up: false, down: false, e: false, enter: false, q: false });
+  const rightKeys = useRef({ left: false, right: false, up: false, down: false, e: false, enter: false, q: false });
 
   const [players, setPlayers] = useState<Player[]>([
     { pos: { x: 250, y: 515 }, vel: { x: 0, y: 0 }, grounded: false, facing: 1, dropUntil: 0, lives: 3, invulnUntil: 0, score: 0, streak: 0 },
@@ -654,6 +656,8 @@ export default function MeteorGame() {
 
   return (
     <div className="relative w-full h-full">
+      <OrientationWarning />
+      {started && <MobileGameControls controlKeys={leftKeys} showUseButton={false} />}
       {/* User Menu (top-left) */}
       <div className="absolute top-2 left-3 z-30">
         <button

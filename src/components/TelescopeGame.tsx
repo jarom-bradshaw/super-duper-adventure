@@ -4,6 +4,8 @@ import { samplePathYAtX } from './game/shared/paths';
 import { GRAVITY, MOVE_ACCEL, MAX_SPEED_X, JUMP_SPEED, FRICTION_AIR, FRICTION_GROUND, clampDt } from './game/shared/physics';
 import { STAR_FACTS } from '../data/stars_facts';
 import GameOverlay from './GameOverlay';
+import OrientationWarning from './OrientationWarning';
+import MobileGameControls from './MobileGameControls';
 import ArcadeOverlay from './ArcadeOverlay';
 import BoardGamesOverlay from './BoardGamesOverlay';
 import TicTacToeMini from './board/TicTacToeMini';
@@ -60,7 +62,7 @@ export default function TelescopeGame() {
   const ridge2Ref = useRef<SVGPathElement>(null);
   const ridge3Ref = useRef<SVGPathElement>(null);
 
-  const keys = useRef({ left: false, right: false, up: false, down: false, enter: false, e: false });
+  const keys = useRef({ left: false, right: false, up: false, down: false, enter: false, e: false, q: false });
 
   const [player, setPlayer] = useState<Player>({ pos: { x: 250, y: 515 }, vel: { x: 0, y: 0 }, grounded: false, facing: 1, dropUntil: 0 });
   const playerRef = useRef(player);
@@ -231,6 +233,56 @@ export default function TelescopeGame() {
   const starCloud = useMemo(() => STAR_FACTS, []);
 
   const caches = useMemo(() => [new Map<number, number>(), new Map<number, number>(), new Map<number, number>()], []);
+
+  // Track Q key press to handle mobile controls
+  const qKeyProcessedRef = useRef(false);
+
+  // Handle Q key actions (water, plant, hourglass)
+  const handleQAction = () => {
+    if (!playerRef.current.grounded || overlayOpen || arcadeOpen) return;
+    
+    const now = performance.now();
+    const px = playerRef.current.pos.x;
+    const py = playerRef.current.pos.y;
+
+    if (pitcherHeld) {
+      setTufts((prev) => prev.map((t) => {
+        const d = Math.hypot(t.x - px, t.y - py);
+        if (d < 80) return { ...t, flowerUntil: now + 30000 };
+        return t;
+      }));
+      // also water planted plants nearby - flower appears 15s later, dies 30s after blooming
+      setPlants((prev) => prev.map((p) => {
+        const d = Math.hypot(p.x - px, p.y - py);
+        if (d < 80 && p.bloomAt === null) {
+          const bloomAt = now + 15000; // flower appears 15 seconds after watering
+          const fadeUntil = bloomAt + 30000; // flower dies 30 seconds after blooming
+          return { ...p, bloomAt, fadeUntil };
+        }
+        return p;
+      }));
+      if (challengeUntil && now < challengeUntil) {
+        // count distinct watered tufts in window
+        setChallengeWatered((w) => Math.min(w + 1, 3));
+      }
+    }
+    if (seedsHeld) {
+      // plant seed anywhere on ground; limit to remaining seeds
+      if (seedsRemaining > 0) {
+        const y = 560; // ground baseline
+        setPlants((prev) => [
+          ...prev,
+          { id: plantNextId.current++, x: px, y, plantedAt: now, fadeUntil: now + 30000, bloomAt: null },
+        ]);
+        setSeedsRemaining((n) => n - 1);
+      }
+    }
+    if (hourglassHeld) {
+      setChallengeUntil(now + 15000);
+      setChallengeWatered(0);
+      setChallengeShaken(0);
+    }
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent, down: boolean) => {
@@ -547,58 +599,27 @@ export default function TelescopeGame() {
 
     // Cleanup faded plants
     setPlants((prev) => prev.filter((p) => performance.now() < p.fadeUntil));
+
+    // Handle Q key from mobile controls (check for press transition)
+    if (keys.current.q && !qKeyProcessedRef.current) {
+      qKeyProcessedRef.current = true;
+      handleQAction();
+    } else if (!keys.current.q) {
+      qKeyProcessedRef.current = false;
+    }
   });
 
-  // Handle pouring with Q keydown (moved here after useRaf)
+  // Handle Q key from keyboard
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === 'q' || e.key === 'Q') && pitcherHeld && playerRef.current.grounded && !overlayOpen && !arcadeOpen) {
-        const now = performance.now();
-        const px = playerRef.current.pos.x; const py = playerRef.current.pos.y;
-        setTufts((prev) => prev.map((t) => {
-          const d = Math.hypot(t.x - px, t.y - py);
-          if (d < 80) return { ...t, flowerUntil: now + 30000 };
-          return t;
-        }));
-        // also water planted plants nearby - flower appears 15s later, dies 30s after blooming
-        setPlants((prev) => prev.map((p) => {
-          const d = Math.hypot(p.x - px, p.y - py);
-          if (d < 80 && p.bloomAt === null) {
-            const bloomAt = now + 15000; // flower appears 15 seconds after watering
-            const fadeUntil = bloomAt + 30000; // flower dies 30 seconds after blooming
-            return { ...p, bloomAt, fadeUntil };
-          }
-          return p;
-        }));
-        if (challengeUntil && now < challengeUntil) {
-          // count distinct watered tufts in window
-          setChallengeWatered((w) => Math.min(w + 1, 3));
-        }
-      }
-      if ((e.key === 'q' || e.key === 'Q') && seedsHeld && playerRef.current.grounded && !overlayOpen && !arcadeOpen) {
-        // plant seed anywhere on ground; limit to remaining seeds
-        if (seedsRemaining > 0) {
-          const now = performance.now();
-          const px = playerRef.current.pos.x;
-          const y = 560; // ground baseline
-          setPlants((prev) => [
-            ...prev,
-            { id: plantNextId.current++, x: px, y, plantedAt: now, fadeUntil: now + 30000, bloomAt: null },
-          ]);
-          setSeedsRemaining((n) => n - 1);
-        }
-      }
-      if ((e.key === 'q' || e.key === 'Q') && hourglassHeld && playerRef.current.grounded && !overlayOpen && !arcadeOpen) {
-        const now = performance.now();
-        setChallengeUntil(now + 15000);
-        setChallengeWatered(0);
-        setChallengeShaken(0);
+      if ((e.key === 'q' || e.key === 'Q')) {
+        e.preventDefault();
+        handleQAction();
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [pitcherHeld, seedsHeld, hourglassHeld, seedsRemaining, challengeUntil, overlayOpen, arcadeOpen]);
-
 
   const idlePhase = useRef(0);
   useRaf((dt) => { idlePhase.current += dt; });
@@ -609,6 +630,8 @@ export default function TelescopeGame() {
 
   return (
     <div className="relative w-full h-full">
+      <OrientationWarning />
+      {started && <MobileGameControls controlKeys={keys} showUseButton={true} />}
       {/* User Menu (top-left) */}
       <div className="absolute top-2 left-3 z-30">
         <button
