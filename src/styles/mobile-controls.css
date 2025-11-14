@@ -1,0 +1,208 @@
+.mobile-game-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 20px;
+  pointer-events: none;
+  z-index: 100;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Joystick (left side) */
+.joystick-base {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  pointer-events: auto;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.joystick-stick {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  transition: transform 0.1s ease-out;
+  pointer-events: none;
+  touch-action: none;
+}
+
+/* Action buttons (right side) */
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.action-button {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+  transition: all 0.1s ease;
+  outline: none;
+}
+
+.action-button:active,
+.action-button.pressed {
+  transform: scale(0.95);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+.action-button .button-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  touch-action: none;
+}
+
+/* Button color variations */
+.grab-button {
+  background: linear-gradient(135deg, rgba(100, 200, 255, 0.25) 0%, rgba(100, 200, 255, 0.15) 100%);
+  border-color: rgba(100, 200, 255, 0.4);
+}
+
+.grab-button:active,
+.grab-button.pressed {
+  background: linear-gradient(135deg, rgba(100, 200, 255, 0.15) 0%, rgba(100, 200, 255, 0.1) 100%);
+}
+
+.use-button {
+  background: linear-gradient(135deg, rgba(255, 200, 100, 0.25) 0%, rgba(255, 200, 100, 0.15) 100%);
+  border-color: rgba(255, 200, 100, 0.4);
+}
+
+.use-button:active,
+.use-button.pressed {
+  background: linear-gradient(135deg, rgba(255, 200, 100, 0.15) 0%, rgba(255, 200, 100, 0.1) 100%);
+}
+
+.jump-button {
+  background: linear-gradient(135deg, rgba(100, 255, 100, 0.25) 0%, rgba(100, 255, 100, 0.15) 100%);
+  border-color: rgba(100, 255, 100, 0.4);
+}
+
+.jump-button:active,
+.jump-button.pressed {
+  background: linear-gradient(135deg, rgba(100, 255, 100, 0.15) 0%, rgba(100, 255, 100, 0.1) 100%);
+}
+
+.down-button {
+  background: linear-gradient(135deg, rgba(255, 100, 100, 0.25) 0%, rgba(255, 100, 100, 0.15) 100%);
+  border-color: rgba(255, 100, 100, 0.4);
+}
+
+.down-button:active,
+.down-button.pressed {
+  background: linear-gradient(135deg, rgba(255, 100, 100, 0.15) 0%, rgba(255, 100, 100, 0.1) 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .mobile-game-controls {
+    padding: 15px;
+  }
+
+  .joystick-base {
+    width: 100px;
+    height: 100px;
+  }
+
+  .joystick-stick {
+    width: 40px;
+    height: 40px;
+  }
+
+  .action-button {
+    width: 60px;
+    height: 60px;
+  }
+
+  .action-button .button-label {
+    font-size: 9px;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-game-controls {
+    display: none;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-game-controls {
+    padding: 10px;
+  }
+
+  .joystick-base {
+    width: 90px;
+    height: 90px;
+  }
+
+  .joystick-stick {
+    width: 35px;
+    height: 35px;
+  }
+
+  .action-button {
+    width: 55px;
+    height: 55px;
+  }
+
+  .action-button .button-label {
+    font-size: 8px;
+  }
+}
+
+/* Prevent text selection and default touch behaviors */
+.mobile-game-controls * {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
