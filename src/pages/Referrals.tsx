@@ -11,6 +11,34 @@ interface Referral {
 
 const referrals: Referral[] = [
   {
+    name: 'Garrett Saunders',
+    title: 'Statistics Professor',
+    company: 'BYU-Idaho',
+    relationship: 'November 12, 2025, Garrett was Jarom\'s teacher',
+    text: 'Jarom is a deep thinker, hard worker, and creative problem solver. He is extremely talented. Most students fluff up their resumes to look great. Jarom has to water his down so that it is fits on a page. He just has that much experience already. He was my student for Applied Linear Regression (Math 425) at BYU-Idaho, an advanced undergraduate course that covers predictive data modeling using R. I authorized him to skip the pre-requisite course and he still was top 20% in the class. He asks excellent questions, works well independently, and is a strong team player that gets along easily with others and has high integrity.',
+  },
+  {
+    name: 'Shi-Jia Wang',
+    title: 'Software Engineer | Web Developer | Computer Science | React.js | Python | Java | JavaScript | Next.js | HTML | Tailwind CSS',
+    company: 'BYUI Support Center',
+    relationship: 'November 10, 2025, Shi-Jia worked with Jarom on the same team',
+    text: "It's such a pleasure working with Jarom in the BYUI Support Center! My favorite part of working with Jarom is his desire to help others and his outgoing, warm personality. I can confidently say that he brought both technical expertise and a positive view to every challenge. In the Business Solution Team for the BSC at BYU-I, there is a variety of issues waiting for us to solve across 18 different offices, and he works with multiple of them. I've seen him break the technical complexity of convoluted problems that include multiple systems into simple steps that can be easily explained to non-technical personnel and used to quickly and correctly solve problems. During this, he's shown outstanding thinking and coding skills in Java and JavaScript. I'd highly recommend anyone to take him on to their team.",
+  },
+  {
+    name: 'Felipe Dos Santos',
+    title: 'Lead Software Developer',
+    company: 'BYUI Support Center',
+    relationship: 'November 7, 2025, Felipe managed Jarom directly',
+    text: "I've had the pleasure of managing Jarom on our software development team, and he's been an outstanding contributor. He's highly skilled in Java Spring Boot, full-stack development, and JavaScript, consistently delivering clean, efficient, and reliable code. Beyond his technical ability, Jarom is a fantastic teammate—collaborative, dependable, and always willing to help others. His positive attitude and professionalism make him a true asset to any team.",
+  },
+  {
+    name: 'Ashish Jain',
+    title: 'System Developer',
+    company: 'Business Solutions BYU-Idaho',
+    relationship: 'November 6, 2025, Ashish worked with Jarom on the same team',
+    text: 'His gift in math and stats helps him to be very analytically minded and solve problems related to data (Python, PowerBI) and full-stack development with a focus on what the client wants first. Beyond that, he is a pleasure to work with, is fun, and is the type of person I would hang out with outside of work. He is not only gifted with the knowledge of technology; he is also a people person.',
+  },
+  {
     name: 'Tyler Skalka',
     title: 'Business System Analyst',
     company: 'the Boise Centre',
